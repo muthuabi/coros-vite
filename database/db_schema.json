@@ -1,0 +1,366 @@
+Posts
+{
+    "_id": "ObjectId", // Unique identifier for the post
+    "roomId": "ObjectId", // The room where the post belongs
+    "authorId": "ObjectId", // The user who created the post
+    "authorName": "String", // Redundant field for faster display
+    "content": "String", // Text content of the post (optional)
+    "media": ["String"], // Array of media file URLs (images, videos, PDFs, etc.)
+    "type": { // Type of post
+      "type": "String",
+      "enum": ["text", "image", "video", "file", "poll"]
+    },
+    "pollOptions": ["String"], // Poll choices (if type is "poll")
+    "pollVotes": { // Tracks user votes in a poll
+      "userId": "String"
+    },
+    "likes": ["ObjectId"], // Users who liked the post
+    "commentsCount": { // Number of comments
+      "type": "Number",
+      "default": 0
+    },
+    "createdAt": { // Timestamp of post creation
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "updatedAt": "Date", // Timestamp of last edit
+    "engagementScore": "Number" // Calculated dynamically for analytics
+  }
+  Quizes
+  {
+    "_id": "ObjectId", // Unique identifier for the quiz
+    "roomId": "ObjectId", // The room where the quiz is hosted
+    "createdBy": "ObjectId", // The teacher/admin who created the quiz
+    "title": "String", // Quiz title
+    "description": "String", // Brief details about the quiz (optional)
+    "totalMarks": "Number", // Maximum score possible
+    "duration": "Number", // Time limit for the quiz (in minutes)
+    "createdAt": { // When the quiz was created
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "questions": [ // Embedded questions for performance
+      {
+        "question": "String", // The text of the question
+        "options": ["String"], // Multiple-choice options (array of 4)
+        "correctAnswer": "String", // The correct option
+        "marks": "Number" // Marks awarded for this question
+      }
+    ]
+  }
+  Quiz Questions
+  {
+    "_id": "ObjectId", // Unique identifier for the question
+    "quizId": "ObjectId", // The quiz this question belongs to
+    "question": "String", // The text of the question
+    "options": ["String"], // Multiple-choice options (array of 4)
+    "correctAnswer": "String", // The correct option
+    "marks": "Number" // Marks awarded for this question
+  }
+  Quiz Attemnps/Submissions
+  {
+    "_id": "ObjectId", // Unique identifier for the quiz attempt
+    "quizId": "ObjectId", // The quiz attempted
+    "userId": "ObjectId", // The user who attempted the quiz
+    "quizTitle": "String", // Redundant field for analytics
+    "userName": "String", // Redundant field for analytics
+    "answers": ["String"], // User's selected choices
+    "score": "Number", // Total marks obtained
+    "submittedAt": { // When the quiz was submitted
+      "type": "Date",
+      "default": "Date.now"
+    }
+  }
+Assignment
+{
+    "_id": "ObjectId", // Unique identifier for the assignment
+    "roomId": "ObjectId", // The room where the assignment belongs
+    "createdBy": "ObjectId", // User (teacher/admin) who created the assignment
+    "title": "String", // Assignment title
+    "description": "String", // Detailed instructions for the assignment
+    "dueDate": "Date", // Deadline for submission
+    "totalMarks": "Number", // Maximum score possible
+    "attachments": ["String"], // Files, PDFs, or reference materials (optional)
+    "createdAt": { // Timestamp when the assignment was created
+      "type": "Date",
+      "default": "Date.now"
+    }
+  }
+  Assignment Submissions
+  {
+    "_id": "ObjectId", // Unique identifier for the submission
+    "assignmentId": "ObjectId", // The assignment this submission belongs to
+    "submittedBy": "ObjectId", // The student who submitted the assignment
+    "file": "String", // Link to the submitted file
+    "submittedAt": { // When the submission was made
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "marksAwarded": "Number", // Score given by the teacher/admin (optional)
+    "feedback": "String", // Comments from the teacher/admin (optional)
+    "gradedBy": "ObjectId" // Who graded the submission (optional)
+  }
+  Activity Logs
+  {
+    "_id": "ObjectId", // Unique identifier for the log
+    "userId": "ObjectId", // User performing the action
+    "action": { // Type of action
+      "type": "String",
+      "enum": ["login", "logout", "post_create", "post_edit", "room_join", "quiz_attempt"]
+    },
+    "itemId": "ObjectId", // The item affected by the action (optional)
+    "timestamp": { // Time of action
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "ipAddress": "String", // IP address for security tracking (optional)
+    "device": "String", // User device info (optional)
+    "date": "String" // Partition key for time-series analytics (e.g., "YYYY-MM-DD")
+  }
+  Reports
+  {
+    "_id": "ObjectId", // Unique identifier for the report
+    "reportedBy": "ObjectId", // User who reported the issue
+    "reportedItem": "ObjectId", // The item being reported (post, comment, or user)
+    "reason": { // Predefined reasons
+      "type": "String",
+      "enum": ["spam", "harassment", "fake content", "inappropriate"]
+    },
+    "status": { // Current status of the report
+      "type": "String",
+      "enum": ["pending", "reviewed", "dismissed", "banned"],
+      "default": "pending"
+    },
+    "handledBy": "ObjectId", // Moderator who reviewed the case (optional)
+    "createdAt": { // Timestamp when the report was filed
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "resolvedAt": "Date" // When the report was handled (optional)
+  }
+  Notifications
+  {
+    "_id": "ObjectId", // Unique identifier for the notification
+    "userId": "ObjectId", // The user receiving the notification
+    "type": { // Notification type
+      "type": "String",
+      "enum": ["post_like", "comment_reply", "new_follower", "room_update"]
+    },
+    "message": "String", // Notification message
+    "link": "String", // Redirect link (e.g., post, room)
+    "isRead": { // Whether the user has read it
+      "type": "Boolean",
+      "default": false
+    },
+    "createdAt": { // Timestamp when the notification was created
+      "type": "Date",
+      "default": "Date.now"
+    }
+  }
+  Messages
+  {
+    "_id": "ObjectId", // Unique identifier for the message
+    "senderId": "ObjectId", // User who sent the message
+    "receiverId": "ObjectId", // If DM, recipient user ID (optional)
+    "roomId": "ObjectId", // If room chat, room ID (optional)
+    "content": "String", // Message content
+    "messageType": { // Type of message
+      "type": "String",
+      "enum": ["text", "image", "video", "file"]
+    },
+    "media": "String", // Link to media if applicable (optional)
+    "seenBy": ["ObjectId"], // Users who have seen the message
+    "isEdited": { // Whether the message was edited
+      "type": "Boolean",
+      "default": false
+    },
+    "isDeleted": { // Whether the message was deleted
+      "type": "Boolean",
+      "default": false
+    },
+    "createdAt": { // Timestamp when the message was sent
+      "type": "Date",
+      "default": "Date.now"
+    }
+  }
+  Comments
+  {
+    "_id": "ObjectId", // Unique identifier for the comment
+    "postId": "ObjectId", // Post where the comment is added
+    "createdBy": "ObjectId", // User who commented
+    "content": "String", // Comment text
+    "likes": ["ObjectId"], // Users who liked the comment
+    "reports": ["ObjectId"], // Users who reported the comment
+    "createdAt": { // Timestamp when the comment was created
+      "type": "Date",
+      "default": "Date.now"
+    }
+  }
+
+  Rooms
+  {
+    "_id": "ObjectId", // Unique identifier for the room
+    "name": "String", // Name of the room (unique)
+    "description": "String", // Short description of the room (optional)
+    "createdBy": "ObjectId", // User who created the room
+    "admins": ["ObjectId"], // Users who manage the room
+    "members": ["ObjectId"], // Users who joined the room
+    "roomType": { // Whether the room is public or private
+      "type": "String",
+      "enum": ["public", "private"]
+    },
+    "visibility": { // If false, hides from public discovery
+      "type": "Boolean",
+      "default": true
+    },
+    "joinRequests": ["ObjectId"], // Users who requested to join (for private rooms)
+    "categories": ["String"], // Tags/categories for the room (e.g., ["Technology", "Gaming"])
+    "pinnedPosts": ["ObjectId"], // Important posts pinned at the top
+    "postsCount": { // Number of posts in the room
+      "type": "Number",
+      "default": 0
+    },
+    "totalLikes": { // Total likes across all posts in the room
+      "type": "Number",
+      "default": 0
+    },
+    "totalComments": { // Total comments across all posts in the room
+      "type": "Number",
+      "default": 0
+    },
+    "totalReports": { // Number of reported posts in the room
+      "type": "Number",
+      "default": 0
+    },
+    "engagementScore": { // Weighted score based on activity (likes, comments, posts)
+      "type": "Number",
+      "default": 0
+    },
+    "createdAt": { // Timestamp when the room was created
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "updatedAt": "Date" // Last update timestamp (optional)
+  }
+  Users
+  {
+    "_id": "ObjectId", // Unique identifier for the user
+    "username": "String", // User’s display name (unique)
+    "email": "String", // Email for authentication (unique)
+    "password": "String", // Securely stored password (hashed)
+    "role": { // Defines user permissions
+      "type": "String",
+      "enum": ["student", "teacher", "admin", "general"]
+    },
+    "roles": ["String"], // List of multiple roles (e.g., ["moderator", "teacher"])
+    "profilePic": "String", // Link to the profile image
+    "bio": "String", // Short user bio (optional)
+    "lastActive": { // Last time user was active
+      "type": "Date",
+      "default": "Date.now"
+    },
+    "lastLogin": "Date", // Added for security
+    "failedLoginAttempts": { // Added for security
+      "type": "Number",
+      "default": 0
+    },
+    "roomsJoined": ["ObjectId"], // List of rooms user has joined
+    "followers": ["ObjectId"], // List of users following this user
+    "following": ["ObjectId"], // List of users this user follows
+    "postsCount": { // Total posts by the user
+      "type": "Number",
+      "default": 0
+    },
+    "isBanned": { // Whether the user is banned
+      "type": "Boolean",
+      "default": false
+    },
+    "createdAt": { // Timestamp of account creation
+      "type": "Date",
+      "default": "Date.now"
+    }
+  }
+
+
+  SUMMARY
+
+  Here’s a detailed **analysis of the collections** in table format, including the number of collections, fields, and other relevant details:
+
+---
+
+### **Overview of Collections**
+
+| **Collection Name**       | **Number of Fields** | **Key Fields**                                                                 | **Purpose**                                                                 |
+|----------------------------|----------------------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| **Posts**                 | 13                   | `_id`, `roomId`, `authorId`, `content`, `type`, `likes`, `commentsCount`      | Stores posts made by users in rooms.                                        |
+| **Quizzes**               | 8                    | `_id`, `roomId`, `createdBy`, `title`, `totalMarks`, `duration`               | Stores quizzes created by teachers/admins.                                 |
+| **Questions**             | 6                    | `_id`, `quizId`, `question`, `options`, `correctAnswer`, `marks`              | Stores questions for quizzes.                                              |
+| **Quiz Attempts**         | 7                    | `_id`, `quizId`, `userId`, `answers`, `score`, `submittedAt`                  | Tracks user attempts for quizzes.                                          |
+| **Assignments**           | 9                    | `_id`, `roomId`, `createdBy`, `title`, `dueDate`, `totalMarks`, `attachments` | Stores assignments created by teachers/admins.                             |
+| **Submissions**           | 8                    | `_id`, `assignmentId`, `submittedBy`, `file`, `marksAwarded`, `feedback`      | Tracks student submissions for assignments.                                |
+| **Activity Logs**         | 7                    | `_id`, `userId`, `action`, `timestamp`, `ipAddress`, `device`                 | Tracks user actions for analytics and security.                            |
+| **Reports**               | 8                    | `_id`, `reportedBy`, `reportedItem`, `reason`, `status`, `handledBy`          | Tracks reports made by users for moderation.                               |
+| **Notifications**         | 7                    | `_id`, `userId`, `type`, `message`, `link`, `isRead`                          | Stores notifications sent to users.                                        |
+| **Messages**              | 10                   | `_id`, `senderId`, `receiverId`, `content`, `messageType`, `seenBy`           | Stores chat messages between users.                                        |
+| **Comments**              | 7                    | `_id`, `postId`, `createdBy`, `content`, `likes`, `reports`                   | Stores comments made on posts.                                             |
+| **Rooms**                 | 18                   | `_id`, `name`, `createdBy`, `roomType`, `visibility`, `engagementScore`       | Stores rooms and their metadata.                                           |
+| **Users**                 | 17                   | `_id`, `username`, `email`, `password`, `role`, `lastActive`, `isBanned`      | Stores user profiles and activity.                                         |
+
+---
+
+### **Summary of Analysis**
+
+| **Metric**                | **Value**            |
+|----------------------------|----------------------|
+| **Total Collections**      | 13                   |
+| **Total Fields**           | 123                  |
+| **Average Fields per Collection** | ~9.46          |
+| **Collections with Most Fields** | **Rooms** (18), **Users** (17) |
+| **Collections with Fewest Fields** | **Questions** (6), **Quiz Attempts** (7) |
+
+---
+
+### **Key Observations**
+1. **Collections with High Complexity**:
+   - **Rooms** and **Users** have the most fields (18 and 17, respectively), indicating they store a wide range of metadata and relationships.
+   - These collections are central to the platform's functionality.
+
+2. **Collections with Low Complexity**:
+   - **Questions** and **Quiz Attempts** have the fewest fields (6 and 7, respectively), as they are focused on specific tasks (storing quiz questions and tracking attempts).
+
+3. **Analytics-Optimized Collections**:
+   - **Activity Logs** and **Reports** are designed for tracking user actions and moderation, making them critical for analytics and security.
+
+4. **Redundant Fields**:
+   - Fields like `authorName` in **Posts** and `quizTitle` in **Quiz Attempts** are added for faster queries and analytics.
+
+5. **Embedded Documents**:
+   - **Quizzes** embed `questions` for better performance, reducing the need for additional queries.
+
+6. **Validation and Enums**:
+   - Many fields use enums (e.g., `type` in **Posts**, `role` in **Users**) to ensure data integrity.
+
+---
+
+### **Recommendations**
+1. **Indexing**:
+   - Add indexes to frequently queried fields (e.g., `roomId`, `userId`, `createdAt`) to improve performance.
+
+2. **Caching**:
+   - Use caching for frequently accessed data (e.g., user profiles, room details).
+
+3. **Sharding**:
+   - Consider sharding large collections like **Posts** and **Messages** for scalability.
+
+4. **Time-Series Database**:
+   - Use a time-series database for **Activity Logs** if the volume of logs is very high.
+
+5. **Full-Text Search**:
+   - Implement full-text search for fields like `content` in **Posts** and `question` in **Questions**.
+
+6. **Backup Strategy**:
+   - Ensure critical collections like **Users**, **Posts**, and **Quizzes** are backed up regularly.
+
+---
+
+This analysis provides a clear overview of the schema and highlights areas for optimization. Let me know if you need further details! 🚀

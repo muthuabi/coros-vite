@@ -1,0 +1,174 @@
+import { useState } from "react";
+import { Link } from "react-router-dom"; // Import Link for navigation
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Avatar,
+  Card,
+  CardContent,
+  Grid,
+  Paper,
+  IconButton,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import {
+  Home,
+  Forum,
+  Person,
+  Notifications,
+  Search,
+  Menu,
+} from "@mui/icons-material";
+
+const HomePage = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Check for mobile view
+
+  const toggleDrawer = (state) => () => {
+    setOpenDrawer(state);
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        background: "linear-gradient(145deg, #ffffff, #126cf7)",
+        color: "#fff",
+      }}
+    >
+      {/* Sidebar */}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"} // Collapsible on mobile
+        open={openDrawer}
+        onClose={toggleDrawer(false)}
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: 240,
+            boxSizing: "border-box",
+            bgcolor: "white",
+            color: "#333",
+          },
+        }}
+      >
+        <Toolbar />
+        <List>
+          <ListItem button>
+            <Home sx={{ mr: 2 }} />
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem button>
+            <Forum sx={{ mr: 2 }} />
+            <ListItemText primary="Rooms" />
+          </ListItem>
+          {isLoggedIn && (
+            <ListItem button>
+              <Person sx={{ mr: 2 }} />
+              <ListItemText primary="Profile" />
+            </ListItem>
+          )}
+        </List>
+      </Drawer>
+
+      {/* Main Content */}
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <AppBar
+          position="static"
+          sx={{ bgcolor: "white", color: "#333", boxShadow: "none" }}
+        >
+          <Toolbar>
+            {isMobile && ( // Show menu button only on mobile
+              <IconButton sx={{ mr: 2 }} onClick={toggleDrawer(true)}>
+                <Menu />
+              </IconButton>
+            )}
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Room-CLP
+            </Typography>
+            <IconButton sx={{ mr: 2 }}>
+              <Search />
+            </IconButton>
+            <IconButton sx={{ mr: 2 }}>
+              <Notifications />
+            </IconButton>
+            {!isLoggedIn ? (
+              <Button color="inherit" component={Link} to="/login">
+                Login
+              </Button>
+            ) : (
+              <Avatar sx={{ bgcolor: "blue" }}>U</Avatar>
+            )}
+          </Toolbar>
+        </AppBar>
+
+        {/* Feed */}
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid item xs={12} md={8}>
+            <Paper elevation={3} sx={{ mb: 2, p: 2, bgcolor: "white" }}>
+              <Typography variant="h6">📢 Welcome to Room-CLP</Typography>
+              <Typography variant="body2" color="textSecondary">
+                Join discussions, participate in quizzes, and explore
+                educational content.
+              </Typography>
+            </Paper>
+
+            {/* Example Posts with Images and Media */}
+            {[1, 2, 3].map((post) => (
+              <Paper key={post} elevation={3} sx={{ mb: 2, p: 2, bgcolor: "white" }}>
+                <Typography variant="h6">Post Title {post}</Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                  This is an example discussion post. Engage with the community.
+                </Typography>
+                <Box
+                  component="img"
+                  src={`https://picsum.photos/600/300?random=${post}`} // Random image for each post
+                  alt="Post Media"
+                  sx={{ width: "100%", borderRadius: 2, mt: 2 }}
+                />
+                <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+                  Posted 2 hours ago
+                </Typography>
+              </Paper>
+            ))}
+          </Grid>
+
+          {/* Right Panel - Trending Rooms */}
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 2, bgcolor: "white" }}>
+              <Typography variant="h6">🔥 Trending Rooms</Typography>
+              <List>
+                <ListItem button>
+                  <ListItemText primary="JavaScript Mastery" />
+                </ListItem>
+                <ListItem button>
+                  <ListItemText primary="Data Structures & Algorithms" />
+                </ListItem>
+                <ListItem button>
+                  <ListItemText primary="Machine Learning" />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
+};
+
+export default HomePage;
