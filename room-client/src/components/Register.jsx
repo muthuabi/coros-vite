@@ -1,62 +1,58 @@
 import React, { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
 import TextField from "@mui/material/TextField";
 import Divider from "@mui/material/Divider";
 import GoogleIcon from "@mui/icons-material/Google";
 import Box from "@mui/material/Box";
-import MicrosoftIcon from "@mui/icons-material/Microsoft";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles/login.css";
 import logo_svg from "../assets/svg/chat-class.svg";
 import { useNavigate } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
-const dummyUsers = [
-  { username: "admin", password: "admin123" },
-  { username: "username", password: "password" },
-];
+
+const validationSchema = Yup.object({
+  firstname: Yup.string().required("First Name is required"),
+  lastname: Yup.string().required("Last Name is required"),
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  password: Yup.string().required("Password is required").min(8, "Password must be at least 8 characters"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required("Confirm Password is required"),
+});
+
 const Register = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: "", password: "" });
   const { setIsLoginPage } = useTogglePage();
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
   const [loadStatus, setLoadStatus] = useState(false);
-  const validateUser = (username, password) => {
+
+  const registerUser = (userData) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const user = dummyUsers.find(
-          (u) => u.username === username && u.password === password
-        );
-        if (user) {
-          resolve(user);
-        } else {
-          reject("Invalid username or password!");
-        }
+        // Simulate a successful registration
+        resolve(userData);
       }, 2000);
     });
   };
-  const handleRegister = () => {
-    setLoadStatus(true);
-    const validateUserPromise = validateUser(form.username, form.password);
-    toast.promise(validateUserPromise, {
-      pending: "Registering you in...",
-      success: "Register Successful!",
-      error: "Invalid username or password!",
-    });
-    validateUserPromise
-      .then((user) => {
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setLoadStatus(false);
+
+  const formik = useFormik({
+    initialValues: { firstname: "", lastname: "", email: "", password: "", confirmPassword: "" },
+    validationSchema,
+    onSubmit: (values) => {
+      setLoadStatus(true);
+      const registerUserPromise = registerUser(values);
+      toast.promise(registerUserPromise, {
+        pending: "Registration in Progress...",
+        success: "Registration Successful!",
+        error: "Registration Failed",
       });
-  };
+      registerUserPromise
+        .then(() => setIsLoginPage(true))
+        .catch((err) => console.log(err))
+        .finally(() => setLoadStatus(false));
+    },
+  });
 
   return (
     <Box className="login-inner-box">
@@ -65,69 +61,98 @@ const Register = () => {
           <img src={logo_svg} alt="logo-svg" className="login-logo-svg" />
           <div>
             <h3>Welcome to CoRoS</h3>
-            <p>Sign Up to Join the Community</p>
+            <p style={{ marginBottom: "0.3em" }}>Sign Up to Join the Community</p>
           </div>
         </div>
-        <div className="form-group">
-          <TextField
-            label="Username"
-            name="username"
-            variant="outlined"
+        <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div className="form-group" style={{ display: "flex", gap: "10px" }}>
+            <TextField
+              label="First Name"
+              name="firstname"
+              variant="standard"
+              fullWidth
+              value={formik.values.firstname}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.firstname && Boolean(formik.errors.firstname)}
+              helperText={formik.touched.firstname && formik.errors.firstname}
+            />
+            <TextField
+              label="Last Name"
+              name="lastname"
+              variant="standard"
+              fullWidth
+              value={formik.values.lastname}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.lastname && Boolean(formik.errors.lastname)}
+              helperText={formik.touched.lastname && formik.errors.lastname}
+            />
+          </div>
+          <div className="form-group">
+            <TextField
+              label="Email ID"
+              name="email"
+              variant="standard"
+              fullWidth
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
+            />
+          </div>
+          <div className="form-group">
+            <TextField
+              label="Password"
+              name="password"
+              type="password"
+              variant="standard"
+              fullWidth
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+            />
+          </div>
+          <div className="form-group">
+            <TextField
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              variant="standard"
+              fullWidth
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+            />
+          </div>
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{ padding: "0.5em", mt: "10px", borderRadius: "10px" }}
+            size="large"
             fullWidth
-            value={form.username}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-group">
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            value={form.password}
-            onChange={handleChange}
-          />
-        </div>
-
-        <Button
-          variant="contained"
-          loading={loadStatus}
-          sx={{ padding: "0.7em" }}
-          size="large"
-          fullWidth
-          onClick={handleRegister}
-        >
-          Register
-        </Button>
-
+            disabled={loadStatus}
+          >
+            {loadStatus ? "Registering..." : "Register"}
+          </Button>
+        </form>
         <Divider>or</Divider>
-        <ButtonGroup
-          className=""
-          variant="outlined"
-          sx={{ borderRadius: "10px" }}
-          aria-label="Other way of SignIn"
-          fullWidth
-        >
-          <Button startIcon={<GoogleIcon />}>Google</Button>
-          <Button startIcon={<MicrosoftIcon />}>Microsoft</Button>
-        </ButtonGroup>
+        <Button variant="outlined" sx={{ borderRadius: "10px" }} fullWidth>
+          <GoogleIcon />
+        </Button>
         <Divider />
         <div className="new-sign-in">
-          <div>
-            <Button variant="text" size="small">
-              Forgot Password
-            </Button>
-          </div>
-          <div>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => setIsLoginPage((prev) => !prev)}
-            >
-              Sign in
-            </Button>
-          </div>
+          <Button variant="text" size="small">
+            Forgot Password
+          </Button>
+          <Button variant="text" size="small" onClick={() => setIsLoginPage((prev) => !prev)}>
+            Sign In
+          </Button>
         </div>
       </div>
     </Box>
