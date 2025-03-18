@@ -17,6 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
 import { useNavigate } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
+import axios from "axios";
 
 const dummyUsers = [
   { username: "admin@krish.in", password: "admin123" },
@@ -35,14 +36,23 @@ const Login = () => {
   const [loadStatus, setLoadStatus] = useState(false);
 
   const validateUser = (username, password) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const user = dummyUsers.find(
-          (u) => u.username === username && u.password === password
-        );
-        user ? resolve(user) : reject("Invalid username or password!");
-      }, 2000);
-    });
+    // return new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     const user = dummyUsers.find(
+    //       (u) => u.username === username && u.password === password
+    //     );
+    //     user ? resolve(user) : reject("Invalid username or password!");
+    //   }, 2000);
+    // });
+    return axios.post("http://localhost:5000/login-user-auth",{username:username,password:password})
+        //   .then((response) => response.data)  // Let's see through it later
+        //   .catch((error) => {
+        //   if (error.response) {
+        //         throw new Error(error.response.data.message || "Internal Server error");
+        //   } else {
+        //         throw new Error("Network error, please try again!");
+        //   }
+        // });
   };
 
   const formik = useFormik({
@@ -57,10 +67,13 @@ const Login = () => {
       toast.promise(validateUserPromise, {
         pending: "Logging in...",
         success: "Login Successful!",
-        error: "Invalid username or password!",
+        error: "Some Error Occured",
       });
       validateUserPromise
-        .then(() => navigate("/"))
+        .then((response) => {
+          // console.log(response);
+          navigate("/");
+        })
         .catch((err) => console.log(err))
         .finally(() => setLoadStatus(false));
     },
