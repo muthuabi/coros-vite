@@ -12,8 +12,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
 import { useNavigate } from "react-router-dom";
-import { useTogglePage } from "../pages/LoginRegister";
-import { Fade, Typography } from "@mui/material";
+import { useTogglePage } from "../pages/LoginRegister";;
 
 const dummyUsers = [
   { username: "admin@krish.in", password: "admin123" },
