@@ -16,8 +16,8 @@ import { useTogglePage } from "../pages/LoginRegister";
 import { Fade, Typography } from "@mui/material";
 
 const dummyUsers = [
-  { username: "admin", password: "admin123" },
-  { username: "username", password: "password" },
+  { username: "admin@krish.in", password: "admin123" },
+  { username: "username@krish.in", password: "password" },
 ];
 
 const validationSchema = Yup.object({
