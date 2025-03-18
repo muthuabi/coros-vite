@@ -1,7 +1,8 @@
 .login-container {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
     width:100%;
+    justify-content: center;
   }
   .login-box {
     /* background:#f7fdffdb; */
@@ -10,16 +11,18 @@
     animation: fadeIn 0.5s ease-in-out;
     border-radius: 10px;
     align-items: center;
-    justify-self: center;
-    max-width: 600px;
+    /* justify-content: center; */
+    max-width:700px;
+    width: min(100%,500px);
+    min-width: 400px;
 
   }
   .login-inner-box
   {
     flex-shrink: 0;
     width: 100%;
-    max-width: 100%;
-    padding-right: calc(var(--bs-gutter-x)* .5);
+    min-width: 100%;
+    /* padding-right: calc(var(--bs-gutter-x)* .5); */
     padding-left: calc(var(--bs-gutter-x)* .5);
     margin-top: var(--bs-gutter-y);
   }
@@ -34,7 +37,7 @@
     display: flex;
     flex-direction: column;
     box-sizing:border-box;
-    padding: 10px;
+    padding: 5px;
     gap:5px;
   }
   .login-logo-svg
@@ -90,7 +93,15 @@
   /* Animations */
   @media (max-width:768px)
   {
-
+      .login-box
+      {
+        margin-top: 25px;
+        align-items:normal;
+        padding-bottom: 10px;
+      }
+      .login-container{
+        height:max-content;
+      }
   }
   @keyframes fadeIn {
     from {

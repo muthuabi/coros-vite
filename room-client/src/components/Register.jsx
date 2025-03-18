@@ -11,6 +11,10 @@ import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
 import { useNavigate } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import IconButton from "@mui/material/IconButton";
 
 const validationSchema = Yup.object({
   firstname: Yup.string().required("First Name is required"),
@@ -24,7 +28,7 @@ const validationSchema = Yup.object({
 
 const Register = () => {
   const navigate = useNavigate();
-  const { setIsLoginPage } = useTogglePage();
+   const { setIsLoginPage, passwordVisibilities,togglePasswordVisibility } = useTogglePage();
   const [loadStatus, setLoadStatus] = useState(false);
 
   const registerUser = (userData) => {
@@ -106,7 +110,7 @@ const Register = () => {
             <TextField
               label="Password"
               name="password"
-              type="password"
+              type={passwordVisibilities.registerPassword?"text":"password"}
               variant="standard"
               fullWidth
               value={formik.values.password}
@@ -114,13 +118,24 @@ const Register = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.password && Boolean(formik.errors.password)}
               helperText={formik.touched.password && formik.errors.password}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{marginRight:"3px"}}>
+                      <IconButton onClick={()=>togglePasswordVisibility("registerPassword")} edge="end">
+                        {passwordVisibilities.registerPassword ? <Visibility/> : <VisibilityOff/>}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
           </div>
           <div className="form-group">
             <TextField
               label="Confirm Password"
               name="confirmPassword"
-              type="password"
+              type={passwordVisibilities.registerConfirmPassword?"text":"password"}
               variant="standard"
               fullWidth
               value={formik.values.confirmPassword}
@@ -128,6 +143,17 @@ const Register = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
               helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{marginRight:"3px"}}>
+                      <IconButton onClick={()=>togglePasswordVisibility("registerConfirmPassword")} edge="end">
+                        {passwordVisibilities.registerConfirmPassword ? <Visibility/> : <VisibilityOff/>}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
           </div>
           <Button
