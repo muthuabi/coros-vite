@@ -20,6 +20,7 @@ const validationSchema = Yup.object({
   firstname: Yup.string().required("First Name is required"),
   lastname: Yup.string().required("Last Name is required"),
   email: Yup.string().email("Invalid email address").required("Email is required"),
+  phone:Yup.string().matches(/^[6-9]\d{9}$/,"Invalid Indian Phone Number").notRequired(),
   password: Yup.string().required("Password is required").min(8, "Password must be at least 8 characters"),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password'), null], 'Passwords must match')
@@ -41,7 +42,7 @@ const Register = () => {
   };
 
   const formik = useFormik({
-    initialValues: { firstname: "", lastname: "", email: "", password: "", confirmPassword: "" },
+    initialValues: { firstname: "", lastname: "", email: "",phone:"", password: "", confirmPassword: "" },
     validationSchema,
     onSubmit: (values) => {
       setLoadStatus(true);
@@ -107,6 +108,19 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
+            <TextField 
+              label="Phone Number"
+              name="phone"
+              variant="standard"
+              fullWidth
+              value={formik.values.phone}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.phone && Boolean(formik.errors.phone)}
+              helperText={formik.touched.phone && formik.errors.phone}
+            />
+          </div>
+          <div className="form-group">
             <TextField
               label="Password"
               name="password"
@@ -167,11 +181,11 @@ const Register = () => {
             {loadStatus ? "Registering..." : "Register"}
           </Button>
         </form>
-        <Divider>or</Divider>
+        {/* <Divider>or</Divider>
         <Button variant="outlined" sx={{ borderRadius: "10px" }} fullWidth>
           <GoogleIcon />
         </Button>
-        <Divider />
+        <Divider /> */}
         <div className="new-sign-in">
           <Button variant="text" size="small">
             Forgot Password
