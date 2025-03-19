@@ -9,8 +9,7 @@ import {useLocation,useNavigate } from 'react-router-dom';
 const TogglePageContext = createContext();
 const useTogglePage = () => useContext(TogglePageContext);
 const banner = new URL("../assets/images/login-banner-img.jpg", import.meta.url).href;
-
-const LoginRegister = () => {
+const LoginRegister = ({props}) => {
     const location=useLocation();
     const navigate=useNavigate();
     const [isLoginPage, setIsLoginPage] = useState(true);
