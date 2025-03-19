@@ -96,7 +96,7 @@ const Home = () => {
             <IconButton sx={{ mr: 2 }}>
               <Notifications />
             </IconButton>
-            <Button color="inherit" component={Link} to="/login">
+            <Button color="inherit" component={Link} to="/auth/sign-in">
                 Login
             </Button>
             {/* {!isLoggedIn ? (

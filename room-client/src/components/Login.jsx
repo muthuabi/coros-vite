@@ -15,7 +15,7 @@ import Box from "@mui/material/Box";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
 import axios from "axios";
 
@@ -32,27 +32,21 @@ const validationSchema = Yup.object({
 });
 const Login = () => {
   const navigate = useNavigate();
-  const { setIsLoginPage, passwordVisibilities,togglePasswordVisibility } = useTogglePage();
+  const { setIsLoginPage, passwordVisibilities, togglePasswordVisibility } =
+    useTogglePage();
   const [loadStatus, setLoadStatus] = useState(false);
-
   const validateUser = (username, password) => {
-    // return new Promise((resolve, reject) => {
-    //   setTimeout(() => {
-    //     const user = dummyUsers.find(
-    //       (u) => u.username === username && u.password === password
-    //     );
-    //     user ? resolve(user) : reject("Invalid username or password!");
-    //   }, 2000);
-    // });
-    return axios.post("http://localhost:5000/login-user-auth",{username:username,password:password})
-        //   .then((response) => response.data)  // Let's see through it later
-        //   .catch((error) => {
-        //   if (error.response) {
-        //         throw new Error(error.response.data.message || "Internal Server error");
-        //   } else {
-        //         throw new Error("Network error, please try again!");
-        //   }
-        // });
+    return new Promise((resolve, reject) => {
+      axios
+        .post("http://localhost:5000/login-user-auth", {
+          username: username,
+          password: password,
+        })
+        .then((response) => resolve(response)) // Let's see through it later
+        .catch((error) =>
+          reject(error?.response?.data?.message || "Network Error")
+        );
+    });
   };
 
   const formik = useFormik({
@@ -66,12 +60,20 @@ const Login = () => {
       );
       toast.promise(validateUserPromise, {
         pending: "Logging in...",
-        success: "Login Successful!",
-        error: "Some Error Occured",
+        success: {
+          render({ message }) {
+            return (message||"Credentials Validated");
+          }
+        },
+        error:{
+          render({ data }) {
+            return data;
+          }
+        },
       });
       validateUserPromise
         .then((response) => {
-          // console.log(response);
+          // console.log(res);
           navigate("/");
         })
         .catch((err) => console.log(err))
@@ -112,7 +114,7 @@ const Login = () => {
             <TextField
               label="Password"
               name="password"
-              type={passwordVisibilities.password?"text":"password"}
+              type={passwordVisibilities.password ? "text" : "password"}
               variant="standard"
               fullWidth
               value={formik.values.password}
@@ -123,9 +125,16 @@ const Login = () => {
               slotProps={{
                 input: {
                   endAdornment: (
-                    <InputAdornment position="end" sx={{marginRight:"3px"}}>
-                      <IconButton onClick={()=>togglePasswordVisibility("password")} edge="end">
-                        {passwordVisibilities.password ? <Visibility/> : <VisibilityOff/>}
+                    <InputAdornment position="end" sx={{ marginRight: "3px" }}>
+                      <IconButton
+                        onClick={() => togglePasswordVisibility("password")}
+                        edge="end"
+                      >
+                        {passwordVisibilities.password ? (
+                          <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -152,16 +161,16 @@ const Login = () => {
         </Button>
         <Divider />
         <div className="new-sign-in">
-          <Button variant="text" size="small">
-            Forgot Password
-          </Button>
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => setIsLoginPage((prev) => !prev)}
-          >
-            Sign Up
-          </Button>
+          <Link to="/auth/forgot-password">
+            <Button variant="text" size="small">
+              Forgot Password
+            </Button>
+          </Link>
+          <Link to="/auth/sign-up">
+            <Button variant="text" size="small">
+              Sign Up
+            </Button>
+          </Link>
         </div>
       </div>
     </Box>

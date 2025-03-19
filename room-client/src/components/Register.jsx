@@ -9,7 +9,7 @@ import Box from "@mui/material/Box";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
@@ -19,17 +19,24 @@ import IconButton from "@mui/material/IconButton";
 const validationSchema = Yup.object({
   firstname: Yup.string().required("First Name is required"),
   lastname: Yup.string().required("Last Name is required"),
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-  phone:Yup.string().matches(/^[6-9]\d{9}$/,"Invalid Indian Phone Number").notRequired(),
-  password: Yup.string().required("Password is required").min(8, "Password must be at least 8 characters"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  phone: Yup.string()
+    .matches(/^[6-9]\d{9}$/, "Invalid Indian Phone Number")
+    .notRequired(),
+  password: Yup.string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters"),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Confirm Password is required"),
 });
 
 const Register = () => {
   const navigate = useNavigate();
-   const { setIsLoginPage, passwordVisibilities,togglePasswordVisibility } = useTogglePage();
+  const { setIsLoginPage, passwordVisibilities, togglePasswordVisibility } =
+    useTogglePage();
   const [loadStatus, setLoadStatus] = useState(false);
 
   const registerUser = (userData) => {
@@ -42,7 +49,14 @@ const Register = () => {
   };
 
   const formik = useFormik({
-    initialValues: { firstname: "", lastname: "", email: "",phone:"", password: "", confirmPassword: "" },
+    initialValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    },
     validationSchema,
     onSubmit: (values) => {
       setLoadStatus(true);
@@ -66,10 +80,15 @@ const Register = () => {
           <img src={logo_svg} alt="logo-svg" className="login-logo-svg" />
           <div>
             <h3>Welcome to CoRoS</h3>
-            <p style={{ marginBottom: "0.3em" }}>Sign Up to Join the Community</p>
+            <p style={{ marginBottom: "0.3em" }}>
+              Sign Up to Join the Community
+            </p>
           </div>
         </div>
-        <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <form
+          onSubmit={formik.handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+        >
           <div className="form-group" style={{ display: "flex", gap: "10px" }}>
             <TextField
               label="First Name"
@@ -79,7 +98,9 @@ const Register = () => {
               value={formik.values.firstname}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.firstname && Boolean(formik.errors.firstname)}
+              error={
+                formik.touched.firstname && Boolean(formik.errors.firstname)
+              }
               helperText={formik.touched.firstname && formik.errors.firstname}
             />
             <TextField
@@ -108,7 +129,7 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
-            <TextField 
+            <TextField
               label="Phone Number"
               name="phone"
               variant="standard"
@@ -124,7 +145,7 @@ const Register = () => {
             <TextField
               label="Password"
               name="password"
-              type={passwordVisibilities.registerPassword?"text":"password"}
+              type={passwordVisibilities.registerPassword ? "text" : "password"}
               variant="standard"
               fullWidth
               value={formik.values.password}
@@ -135,9 +156,18 @@ const Register = () => {
               slotProps={{
                 input: {
                   endAdornment: (
-                    <InputAdornment position="end" sx={{marginRight:"3px"}}>
-                      <IconButton onClick={()=>togglePasswordVisibility("registerPassword")} edge="end">
-                        {passwordVisibilities.registerPassword ? <Visibility/> : <VisibilityOff/>}
+                    <InputAdornment position="end" sx={{ marginRight: "3px" }}>
+                      <IconButton
+                        onClick={() =>
+                          togglePasswordVisibility("registerPassword")
+                        }
+                        edge="end"
+                      >
+                        {passwordVisibilities.registerPassword ? (
+                          <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -149,20 +179,38 @@ const Register = () => {
             <TextField
               label="Confirm Password"
               name="confirmPassword"
-              type={passwordVisibilities.registerConfirmPassword?"text":"password"}
+              type={
+                passwordVisibilities.registerConfirmPassword
+                  ? "text"
+                  : "password"
+              }
               variant="standard"
               fullWidth
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              error={
+                formik.touched.confirmPassword &&
+                Boolean(formik.errors.confirmPassword)
+              }
+              helperText={
+                formik.touched.confirmPassword && formik.errors.confirmPassword
+              }
               slotProps={{
                 input: {
                   endAdornment: (
-                    <InputAdornment position="end" sx={{marginRight:"3px"}}>
-                      <IconButton onClick={()=>togglePasswordVisibility("registerConfirmPassword")} edge="end">
-                        {passwordVisibilities.registerConfirmPassword ? <Visibility/> : <VisibilityOff/>}
+                    <InputAdornment position="end" sx={{ marginRight: "3px" }}>
+                      <IconButton
+                        onClick={() =>
+                          togglePasswordVisibility("registerConfirmPassword")
+                        }
+                        edge="end"
+                      >
+                        {passwordVisibilities.registerConfirmPassword ? (
+                          <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -190,9 +238,11 @@ const Register = () => {
           <Button variant="text" size="small">
             Forgot Password
           </Button>
-          <Button variant="text" size="small" onClick={() => setIsLoginPage((prev) => !prev)}>
-            Sign In
-          </Button>
+          <Link to="/auth/sign-in">
+            <Button variant="text" size="small">
+              Sign In
+            </Button>
+          </Link>
         </div>
       </div>
     </Box>
