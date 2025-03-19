@@ -74,7 +74,9 @@ const ForgotPasswordDialog = () => {
       <DialogContent sx={{ p: 3 }}>
         <TextField 
           fullWidth 
-          label="Enter your email" 
+          label="Your Email ID"
+          type="email" 
+          autoFocus
           variant="outlined" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
