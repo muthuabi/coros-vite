@@ -5,20 +5,22 @@ import "../styles/login.css";
 import Login from "../components/Login";
 import Register from "../components/Register";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import {useLocation,useNavigate } from 'react-router-dom';
 const TogglePageContext = createContext();
 const useTogglePage = () => useContext(TogglePageContext);
 const banner = new URL("../assets/images/login-banner-img.jpg", import.meta.url).href;
 
 const LoginRegister = () => {
+    const location=useLocation();
+    const navigate=useNavigate();
     const [isLoginPage, setIsLoginPage] = useState(true);
-    const [passwordVisibilities,setPasswordVisibilities]=useState({
-        password:false,
-        registerPassword:false,
-        registerConfirmPassword:false
+    const [passwordVisibilities, setPasswordVisibilities] = useState({
+        password: false,
+        registerPassword: false,
+        registerConfirmPassword: false
     })
-    const togglePasswordVisibility=(fieldname)=>{
-        setPasswordVisibilities(prev=>({...prev,[fieldname]:!prev[fieldname]}))
+    const togglePasswordVisibility = (fieldname) => {
+        setPasswordVisibilities(prev => ({ ...prev, [fieldname]: !prev[fieldname] }))
     }
     return (
         <Box className="login-container container-fluid row">
@@ -26,7 +28,7 @@ const LoginRegister = () => {
                 <img src={banner} alt="Login Banner" className="banner-img" />
             </div>
             <Box className="login-box col-md-*">
-                <TogglePageContext.Provider value={{ isLoginPage, setIsLoginPage,passwordVisibilities,setPasswordVisibilities,togglePasswordVisibility }}>
+                <TogglePageContext.Provider value={{ isLoginPage, setIsLoginPage, passwordVisibilities, setPasswordVisibilities, togglePasswordVisibility }}>
                     {isLoginPage ? <Login /> : <Register />}
                 </TogglePageContext.Provider>
             </Box>
