@@ -17,6 +17,9 @@ const loginUserAuth=(req,res)=>{
         res.status(404).json({sucess:false,message:"User Not Found",error:"User Not Found"});
     }
 }
+const forgotPassword=(req,res)=>{
+    const {email}=req.body;
+}
 module.exports={
-    loginUserAuth
+    loginUserAuth,forgotPassword
 };
