@@ -38,7 +38,7 @@ const Login = () => {
   const validateUser = (username, password) => {
     return new Promise((resolve, reject) => {
       axios
-        .post("http://localhost:5000/login-user-auth", {
+        .post("http://localhost:5000/api/auth/login-user-auth", {
           username: username,
           password: password,
         })
