@@ -17,7 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
 import { useNavigate, Link } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
-import axios from "axios";
+import axos from "../axos";
 
 const dummyUsers = [
   { username: "admin@krish.in", password: "admin123" },
@@ -32,13 +32,12 @@ const validationSchema = Yup.object({
 });
 const Login = () => {
   const navigate = useNavigate();
-  const { setIsLoginPage, passwordVisibilities, togglePasswordVisibility } =
-    useTogglePage();
+  const { setIsLoginPage, passwordVisibilities, togglePasswordVisibility } = useTogglePage();
   const [loadStatus, setLoadStatus] = useState(false);
   const validateUser = (username, password) => {
     return new Promise((resolve, reject) => {
-      axios
-        .post("http://localhost:5000/api/auth/login-user-auth", {
+      axos
+        .post("/api/auth/login-user-auth", {
           username: username,
           password: password,
         })

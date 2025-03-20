@@ -11,39 +11,55 @@ import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import axos from "../axos";
 const ForgotPasswordDialog = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
-    // navigate("/auth/sign-in"); 
-    navigate(-1);
+    navigate("/auth/sign-in"); 
+    // navigate(-1);
   };
+//   const sendForgotMail=(email)=>{
+//     return new Promise((resolve,reject)=>{
+//     return axos.post("/api/auth/forgot-password",{email})
+//         .then((res)=>{
+//             resolve(res);
+//         })
+//         .catch((err)=>{
+//             reject(err);
+//         });
+//     })
+//  }
+//Both Method Works Fine
+const sendForgotMail = (email) => {
+  return axos.post("/api/auth/forgot-password", { email });
+};
 
-  const handleResetPassword = () => {
-    if (!email.trim()) {
+const handleResetPassword = () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.trim()) {
       toast.error("Email is required!");
       return;
-    }
-
-    // Dummy async promise to simulate password reset
-    toast.promise(
-      new Promise((resolve) => {
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-          resolve();
-        }, 2000);
-      }),
+  }
+  if (!emailRegex.test(email.trim())) {
+      toast.error("Invalid Email!");
+      return;
+  }
+  toast.promise(
+      sendForgotMail(email),
       {
-        pending: "Processing request...",
-        success: "Password reset email sent!",
-        error: "Failed to send email. Try again!"
+          pending: "Processing request...",
+          success: "Password reset email sent!",
+          error: {
+              render({ data }) {
+                  return data.response?.data?.message || "Possibly Network Error,Try again!";
+              },
+          },
       }
-    );
-  };
+  );
+};
 
   return (
     <Dialog 
