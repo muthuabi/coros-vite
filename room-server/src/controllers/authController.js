@@ -10,7 +10,11 @@ const emailArray = [
     email: "muthuabi292@gmail.com",
   },
   { email: "muthuabi027@gmail.com" },
-  { email: "sathishboost3@gmail.com" }
+  { email: "sathishboost3@gmail.com" },
+  { email: "murs4002@gmail.com" },
+  {
+    email: "murugan001ab@gmail.com"
+  }
 ];
 const loginUserAuth = (req, res) => {
   const { username = "admin@coros.in", password = "admin.coros.in" } =
@@ -43,7 +47,10 @@ const forgotPassword = (req, res) => {
   const mailOptions = {
     to: email,
     subject: "Password Reset",
-    html: `<html><body><main style='display:flex;flex-direction:column;justify-content:center;'><h1>Password Reset Request</h1><p><b>Hey User!</b><br/>As per your request, your password has been reset and you can click here to set new password <a href='https://google.com'>Way to Reset</a></p></body></main></html>`,
+    html: `<html><body><main style='display:flex;flex-direction:column;justify-content:center;'>
+    <h1>Password Reset Request</h1><p><b>Hey User!</b><br/>As per your request, 
+    your password has been reset and you can click here to set new password 
+    <a href='https://google.com'>Way to Reset</a></p></body></main></html>`,
   };
   const emailUser = emailArray.find((emailUser) => emailUser.email === email.trim());
   if (!emailUser) {
