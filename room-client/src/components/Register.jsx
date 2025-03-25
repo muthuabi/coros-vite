@@ -229,12 +229,14 @@ const Register = () => {
             {loadStatus ? "Registering..." : "Register"}
           </Button>
         </form>
-        {/* <Divider>or</Divider>
+        <Divider>or</Divider>
+        <Link to="/auth/sign-in">
         <Button variant="outlined" sx={{ borderRadius: "10px" }} fullWidth>
-          <GoogleIcon />
+          Sign In
+          {/* <Typography variant="button" color="initial">Google</Typography> */}
         </Button>
-        <Divider /> */}
-        <div className="new-sign-in">
+        </Link>
+        {/* <div className="new-sign-in">
           <Button variant="text" size="small">
             Forgot Password
           </Button>
@@ -243,7 +245,7 @@ const Register = () => {
               Sign In
             </Button>
           </Link>
-        </div>
+        </div> */}
       </div>
     </Box>
   );
