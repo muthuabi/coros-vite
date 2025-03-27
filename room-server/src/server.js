@@ -3,6 +3,8 @@ const app=express();
 const denv=require("dotenv");
 const cors=require("cors");
 const authRoutes=require("./routes/authRoutes");
+const connectDB=require("./config/dbConfig");
+connectDB();
 denv.config();
 const PORT=process.env.PORT || 5000;
 app.use(express.json());
