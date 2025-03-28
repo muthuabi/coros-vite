@@ -14,6 +14,9 @@ const emailArray = [
   { email: "murs4002@gmail.com" },
   {
     email: "murugan001ab@gmail.com"
+  },
+  {
+    email:"gowtham01102@gmail.com"
   }
 ];
 const loginUserAuth = (req, res) => {
