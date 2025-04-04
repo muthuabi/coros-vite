@@ -1,3 +1,4 @@
+const User = require("../models/User");
 const express = require("express");
 const { sendEmail } = require("../controllers/emailController");
 const userArray = [
@@ -19,30 +20,28 @@ const emailArray = [
     email:"gowtham01102@gmail.com"
   }
 ];
-const loginUserAuth = (req, res) => {
-  const { username = "admin@coros.in", password = "admin.coros.in" } =
-    req.body || {};
-  const user = userArray.find((user) => user.username === username);
-  if (user) {
-    if (user.password === password) {
-      res.status(200).json({ sucess: true, message: "Login Success" });
-    } else {
-      res
-        .status(401)
-        .json({
-          success: false,
-          message: "Invalid Password",
-          errror: "Invalid Password",
-        });
-    }
-  } else {
-    res
-      .status(404)
-      .json({
-        sucess: false,
-        message: "User Not found",
-        error: "User Not Found",
+const loginUserAuth = async (req, res) => {
+  const { username = "admin@coros.in", password = "admin.coros.in" } = req.body || {};
+
+  try {
+    const user = await User.findOne({ email: username });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
       });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Password",
+      });
+    }
+
+    res.status(200).json({ success: true, message: "Login Success" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Login Failed", error });
   }
 };
 const forgotPassword = (req, res) => {

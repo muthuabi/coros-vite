@@ -15,7 +15,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import IconButton from "@mui/material/IconButton";
-
+import axos from "../axos";
 const validationSchema = Yup.object({
   firstname: Yup.string().required("First Name is required"),
   lastname: Yup.string().required("Last Name is required"),
@@ -39,13 +39,9 @@ const Register = () => {
     useTogglePage();
   const [loadStatus, setLoadStatus] = useState(false);
 
-  const registerUser = (userData) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Simulate a successful registration
-        resolve(userData);
-      }, 2000);
-    });
+  const registerUser = async (userData) => {
+    const response = await axios.post("http://localhost:5000/api/register-user", userData);
+    return response.data;
   };
 
   const formik = useFormik({
@@ -60,14 +56,21 @@ const Register = () => {
     validationSchema,
     onSubmit: (values) => {
       setLoadStatus(true);
+    
       const registerUserPromise = registerUser(values);
+    
       toast.promise(registerUserPromise, {
         pending: "Registration in Progress...",
         success: "Registration Successful!",
-        error: "Registration Failed",
+        error: {
+          render({ data }) {
+            return data?.response?.data?.message || "Registration Failed";
+          },
+        },
       });
+    
       registerUserPromise
-        .then(() => setIsLoginPage(true))
+        .then(() => navigate("/auth/sign-in"))
         .catch((err) => console.log(err))
         .finally(() => setLoadStatus(false));
     },
