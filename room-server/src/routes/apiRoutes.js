@@ -1,4 +1,5 @@
 const express=require("express");
 const router=express.Router();
-router.use("/auth",require("./authRoutes"));
-//NOT USED
+const authRoutes=require("../routes/authRoutes");
+router.use("/auth",authRoutes);
+module.exports=router;

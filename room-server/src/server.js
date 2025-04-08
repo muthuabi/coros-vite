@@ -2,7 +2,7 @@ const express=require("express");
 const app=express();
 const denv=require("dotenv");
 const cors=require("cors");
-const authRoutes=require("./routes/authRoutes");
+const apiRoutes=require("./routes/apiRoutes");
 const connectDB=require("./config/dbConfig");
 connectDB();
 denv.config();
@@ -12,7 +12,7 @@ app.use(cors());
 app.get("/",(req,res)=>{
     res.send("Hello World");
 });
-app.use("/api",authRoutes);
+app.use("/api",apiRoutes);
 app.listen(PORT,(svr)=>{
     console.log(`Server is running on port ${PORT}`);
 });

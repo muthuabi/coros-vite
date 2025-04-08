@@ -1,166 +1,392 @@
-import { useState } from "react";
-import { Link } from "react-router-dom"; // Import Link for navigation
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-// import Avatar from "@mui/material/Avatar";
-import Paper from "@mui/material/Paper";
-import IconButton from "@mui/material/IconButton";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import useTheme from "@mui/material/styles/useTheme";
-import Grid from "@mui/material/Grid2";
-import HomeIcon from "@mui/icons-material/Home";
-import Forum from "@mui/icons-material/Forum";
-// import Person from "@mui/icons-material/Person";
-import Notifications from "@mui/icons-material/Notifications";
-import Search from "@mui/icons-material/Search";
-import Menu from "@mui/icons-material/Menu";
+import React, { useState } from "react";
+import DiscussionRoom from '../components/DiscussionRoom';
+import {
+  Box,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  useMediaQuery,
+  IconButton,
+  Menu,
+  MenuItem,
+  Switch,
+  Card,
+  CardHeader,
+  CardContent,
+  CardMedia,
+  CardActions,
+  Divider,
+  useTheme,
+  ThemeProvider,
+  createTheme,
+  TextField
+} from "@mui/material";
+import {
+  Home as HomeIcon,
+  Group as GroupIcon,
+  Settings as SettingsIcon,
+  AccountCircle as AccountCircleIcon,
+  Logout as LogoutIcon,
+  MoreVert as MoreVertIcon,
+  Favorite as FavoriteIcon,
+  Share as ShareIcon,
+  ChatBubble as CommentIcon,
+  Brightness4 as DarkModeIcon,
+  Brightness7 as LightModeIcon,
+} from "@mui/icons-material";
+import MenuIcon from "@mui/icons-material/Menu";
+import { styled } from "@mui/material/styles";
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
+import InputAdornment from '@mui/material/InputAdornment';
+const drawerWidth = 240;
 
-const Home = () => {
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [openDrawer, setOpenDrawer] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Check for mobile view
-
-  const toggleDrawer = (state) => () => {
-    setOpenDrawer(state);
-  };
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "linear-gradient(145deg,rgb(215, 246, 255),rgb(208, 246, 255))",
-        color: "#fff",
-      }}
-    >
-      {/* Sidebar */}
-      <Drawer
-        variant={isMobile ? "temporary" : "permanent"} // Collapsible on mobile
-        open={openDrawer}
-        onClose={toggleDrawer(false)}
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: 240,
-            boxSizing: "border-box",
-            bgcolor: "white",
-            color: "#333",
+// Create a theme instance
+const getDesignTokens = (mode) => ({
+  palette: {
+    mode,
+    ...(mode === 'light'
+      ? {
+          // Light mode colors
+          background: {
+            default: '#f5f5f5',
+            paper: '#ffffff',
           },
-        }}
-      >
-        <Toolbar />
-        <List>
-          <ListItem button="true">
-            <HomeIcon sx={{ mr: 2 }} />
-            <ListItemText primary="Home" />
-          </ListItem>
-          <ListItem button="true">
-            <Forum sx={{ mr: 2 }} />
-            <ListItemText primary="Rooms" />
-          </ListItem>
-          {/* {isLoggedIn && (
-            <ListItem button="true">
-              <Person sx={{ mr: 2 }} />
-              <ListItemText primary="Profile" />
+          text: {
+            primary: '#121212',
+            secondary: '#4a4a4a',
+          },
+        }
+      : {
+          // Dark mode colors
+          background: {
+            default: '#121212',
+            paper: '#1E1E1E',
+          },
+          text: {
+            primary: '#ffffff',
+            secondary: '#b0b0b0',
+          },
+        }),
+  },
+});
+
+const Main = styled("main")(({ theme }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+  backgroundColor: theme.palette.background.default,
+  color: theme.palette.text.primary,
+  minHeight: "100vh",
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  marginLeft: -drawerWidth,
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: 0,
+  },
+}));
+
+const AppBarStyled = styled(AppBar)(({ theme }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
+  boxShadow: 'none',
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+const DrawerStyled = styled(Drawer)(({ theme }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  "& .MuiDrawer-paper": {
+    width: drawerWidth,
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    borderRight: 'none',
+  },
+}));
+
+const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
+  id: idx,
+  username: `User${idx + 1}`,
+  avatar: `https://i.pravatar.cc/150?img=${idx + 10}`,
+  image: `https://picsum.photos/seed/post${idx + 1}/500/300`,
+  content: `This is a dummy post #${idx + 1}. Enjoying the community vibe!`,
+  createdAt: new Date(Date.now() - idx * 3600000).toLocaleString(),
+  likes: Math.floor(Math.random() * 100),
+  comments: Math.floor(Math.random() * 20),
+}));
+
+export default function HomeFeed() {
+  const [mode, setMode] = useState('dark');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const isMobile = useMediaQuery("(max-width:600px)");
+  
+  const theme = createTheme(getDesignTokens(mode));
+  
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+  
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const toggleColorMode = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+
+  const drawer = (
+    <div>
+      <Toolbar />
+      <Divider />
+      <List>
+        {["Home", "Rooms", "Settings", "Profile", "Logout"].map((text, index) => {
+          const icons = [
+            <HomeIcon />, <GroupIcon />, <SettingsIcon />, <AccountCircleIcon />, <LogoutIcon />,
+          ];
+          return (
+            <ListItem button key={text}>
+              <ListItemIcon sx={{ color: "inherit" }}>
+                {icons[index]}
+              </ListItemIcon>
+              <ListItemText primary={text} />
             </ListItem>
-          )} */}
-        </List>
-      </Drawer>
-
-      {/* Main Content */}
-      <Box sx={{ flexGrow: 1, p: 3 }}>
-        <AppBar
-          position="static"
-          sx={{ bgcolor: "white", color: "#333", boxShadow: "none" }}
-        >
-          <Toolbar>
-            {isMobile && ( // Show menu button only on mobile
-              <IconButton sx={{ mr: 2 }} onClick={toggleDrawer(true)}>
-                <Menu />
-              </IconButton>
-            )}
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              CoRoS
-            </Typography>
-            <IconButton sx={{ mr: 2 }}>
-              <Search />
-            </IconButton>
-            <IconButton sx={{ mr: 2 }}>
-              <Notifications />
-            </IconButton>
-            <Button color="inherit" component={Link} to="/auth/sign-in">
-                Login
-            </Button>
-            {/* {!isLoggedIn ? (
-              <Button color="inherit" component={Link} to="/login">
-                Login
-              </Button>
-            ) : (
-              <Avatar sx={{ bgcolor: "blue" }}>U</Avatar>
-            )} */}
-          </Toolbar>
-        </AppBar>
-
-        {/* Feed */}
-        <Grid container spacing={3} sx={{ mt: 2 }}>
-          <Grid item xs={12} md={8}>
-            <Paper elevation={3} sx={{ mb: 2, p: 2, bgcolor: "white" }}>
-              <Typography variant="h6">📢 Welcome to Room-CLP</Typography>
-              <Typography variant="body2" color="textSecondary">
-                Join discussions, participate in quizzes, and explore
-                educational content.
-              </Typography>
-            </Paper>
-
-            {/* Example Posts with Images and Media */}
-            {[1, 2, 3].map((post) => (
-              <Paper key={post} elevation={3} sx={{ mb: 2, p: 2, bgcolor: "white" }}>
-                <Typography variant="h6">Post Title {post}</Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                  This is an example discussion post. Engage with the community.
-                </Typography>
-                <Box
-                  component="img"
-                  src={`https://picsum.photos/600/300?random=${post}`} // Random image for each post
-                  alt="Post Media"
-                  sx={{ width: "100%", borderRadius: 2, mt: 2 }}
-                />
-                <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
-                  Posted 2 hours ago
-                </Typography>
-              </Paper>
-            ))}
-          </Grid>
-
-          {/* Right Panel - Trending Rooms */}
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 2, bgcolor: "white" }}>
-              <Typography variant="h6">🔥 Trending Rooms</Typography>
-              <List>
-                <ListItem button>
-                  <ListItemText primary="JavaScript Mastery" />
-                </ListItem>
-                <ListItem button>
-                  <ListItemText primary="Data Structures & Algorithms" />
-                </ListItem>
-                <ListItem button>
-                  <ListItemText primary="Machine Learning" />
-                </ListItem>
-              </List>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-    </Box>
+          );
+        })}
+      </List>
+    </div>
   );
-};
 
-export default Home;
+  return (
+    <ThemeProvider theme={theme}>
+      {/*<DiscussionRoom/>*/}
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBarStyled position="fixed">
+  <Toolbar>
+    {isMobile && (
+      <IconButton
+        color="inherit"
+        aria-label="open drawer"
+        edge="start"
+        onClick={handleDrawerToggle}
+        sx={{ mr: 2 }}
+      >
+        <MenuIcon />
+      </IconButton>
+    )}
+    
+    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+      Social Feed
+    </Typography>
+    
+    {/* Search Bar - Desktop */}
+    <Box sx={{ 
+      display: { xs: 'none', sm: 'flex' },
+      alignItems: 'center',
+      width: 300,
+      mr: 2
+    }}>
+      <TextField
+        variant="outlined"
+        size="small"
+        placeholder="Search..."
+        fullWidth
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+          sx: {
+            backgroundColor: mode === 'dark' ? '#333' : '#f5f5f5',
+            borderRadius: 1
+          }
+        }}
+      />
+    </Box>
+    
+    {/* Search Icon - Mobile */}
+    <IconButton
+      color="inherit"
+      onClick={() => setShowMobileSearch(!showMobileSearch)}
+      sx={{ display: { xs: 'flex', sm: 'none' }, mr: 1 }}
+    >
+      <SearchIcon />
+    </IconButton>
+    
+    <IconButton onClick={toggleColorMode} color="inherit">
+      {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+    </IconButton>
+    
+    <IconButton
+      size="large"
+      edge="end"
+      aria-label="account of current user"
+      aria-controls="menu-appbar"
+      aria-haspopup="true"
+      onClick={handleMenuOpen}
+      color="inherit"
+    >
+      <Avatar src="https://i.pravatar.cc/150?img=33" alt="User Avatar" />
+    </IconButton>
+    
+    <Menu
+      id="menu-appbar"
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      keepMounted
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      open={Boolean(anchorEl)}
+      onClose={handleMenuClose}
+    >
+      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+    </Menu>
+  </Toolbar>
+  
+  {/* Mobile Search Bar - appears when clicking search icon */}
+  {showMobileSearch && (
+    <Box sx={{ 
+      display: { xs: 'flex', sm: 'none' },
+      p: 1,
+      backgroundColor: mode === 'dark' ? '#333' : '#f5f5f5'
+    }}>
+      <TextField
+        autoFocus
+        variant="outlined"
+        size="small"
+        placeholder="Search..."
+        fullWidth
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+          sx: {
+            backgroundColor: mode === 'dark' ? '#1E1E1E' : '#fff',
+          }
+        }}
+      />
+      <IconButton 
+        onClick={() => setShowMobileSearch(false)}
+        sx={{ ml: 1 }}
+      >
+        <CloseIcon />
+      </IconButton>
+    </Box>
+  )}
+</AppBarStyled>
+
+        <Box
+          component="nav"
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          aria-label="mailbox folders"
+        >
+          {/* Mobile drawer */}
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: 'block', sm: 'none' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            }}
+          >
+            {drawer}
+          </Drawer>
+          {/* Desktop drawer */}
+          <DrawerStyled
+            variant="permanent"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+            }}
+          >
+            {drawer}
+          </DrawerStyled>
+        </Box>
+
+        <Main sx={{ 
+          margin:"auto",
+          padding: { xs: 2, sm: 3 },
+        }}>
+          <Toolbar />
+          {dummyPosts.map((post) => (
+            <Card key={post.id} sx={{ 
+              mb: 3,
+              backgroundColor: 'background.paper',
+              borderRadius: 2,
+              boxShadow: 3,
+            }}>
+              <CardHeader
+                avatar={
+                  <Avatar src={post.avatar} alt={post.username} />
+                }
+                action={
+                  <IconButton aria-label="settings">
+                    <MoreVertIcon />
+                  </IconButton>
+                }
+                title={post.username}
+                subheader={post.createdAt}
+              />
+              <CardContent>
+                <Typography variant="body1" color="text.primary">
+                  {post.content}
+                </Typography>
+              </CardContent>
+              <CardMedia
+                component="img"
+                image={post.image}
+                alt="Post image"
+                sx={{ maxHeight: 400, objectFit: 'cover' }}
+              />
+              <CardActions disableSpacing>
+                <IconButton aria-label="add to favorites">
+                  <FavoriteIcon />
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    {post.likes}
+                  </Typography>
+                </IconButton>
+                <IconButton aria-label="comment">
+                  <CommentIcon />
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    {post.comments}
+                  </Typography>
+                </IconButton>
+                <IconButton aria-label="share">
+                  <ShareIcon />
+                </IconButton>
+              </CardActions>
+            </Card>
+          ))}
+        </Main>
+      </Box>
+    </ThemeProvider>
+  );
+}

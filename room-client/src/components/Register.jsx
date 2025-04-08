@@ -17,6 +17,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import IconButton from "@mui/material/IconButton";
 import axos from "../axos";
 const validationSchema = Yup.object({
+  username:Yup.string().required("Username is Required").matches(/^[a-z]/,"Username should start with alphabet").min("3","Username should be at least 3 characters").max(10,"Username shouldn't exceed 10 characters"),
   firstname: Yup.string().required("First Name is required"),
   lastname: Yup.string().required("Last Name is required"),
   email: Yup.string()
@@ -40,12 +41,13 @@ const Register = () => {
   const [loadStatus, setLoadStatus] = useState(false);
 
   const registerUser = async (userData) => {
-    const response = await axios.post("http://localhost:5000/api/register-user", userData);
+    const response = await axos.post("http://localhost:5000/api/auth/register-user", userData);
     return response.data;
   };
 
   const formik = useFormik({
     initialValues: {
+      username:"",
       firstname: "",
       lastname: "",
       email: "",
@@ -116,6 +118,19 @@ const Register = () => {
               onBlur={formik.handleBlur}
               error={formik.touched.lastname && Boolean(formik.errors.lastname)}
               helperText={formik.touched.lastname && formik.errors.lastname}
+            />
+          </div>
+          <div className="form-group">
+            <TextField
+              label="Username"
+              name="username"
+              variant="standard"
+              fullWidth
+              value={formik.values.username}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.username && Boolean(formik.errors.username)}
+              helperText={formik.touched.username && formik.errors.username}
             />
           </div>
           <div className="form-group">

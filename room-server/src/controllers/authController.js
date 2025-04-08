@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const express = require("express");
+// const express = require("express");
 const { sendEmail } = require("../controllers/emailController");
 const userArray = [
   { username: "admin@coros.in", password: "admin.coros.in" },
@@ -20,6 +20,37 @@ const emailArray = [
     email:"gowtham01102@gmail.com"
   }
 ];
+const registerUser = async (req, res) => {
+  try {
+    const { firstname, lastname, email, phone, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email already registered" });
+    }
+
+    const newUser = new User({
+      firstname,
+      lastname,
+      email,
+      phone,
+      password,
+    });
+    const savedUser = await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: savedUser,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Registration failed", error });
+  }
+};
 const loginUserAuth = async (req, res) => {
   const { username = "admin@coros.in", password = "admin.coros.in" } = req.body || {};
 
@@ -78,4 +109,5 @@ const forgotPassword = (req, res) => {
 module.exports = {
   loginUserAuth,
   forgotPassword,
+  registerUser,
 };

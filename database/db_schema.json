@@ -1,31 +1,4 @@
-Posts
-{
-    "_id": "ObjectId", // Unique identifier for the post
-    "roomId": "ObjectId", // The room where the post belongs
-    "authorId": "ObjectId", // The user who created the post
-    "authorName": "String", // Redundant field for faster display
-    "content": "String", // Text content of the post (optional)
-    "media": ["String"], // Array of media file URLs (images, videos, PDFs, etc.)
-    "type": { // Type of post
-      "type": "String",
-      "enum": ["text", "image", "video", "file", "poll"]
-    },
-    "pollOptions": ["String"], // Poll choices (if type is "poll")
-    "pollVotes": { // Tracks user votes in a poll
-      "userId": "String"
-    },
-    "likes": ["ObjectId"], // Users who liked the post
-    "commentsCount": { // Number of comments
-      "type": "Number",
-      "default": 0
-    },
-    "createdAt": { // Timestamp of post creation
-      "type": "Date",
-      "default": "Date.now"
-    },
-    "updatedAt": "Date", // Timestamp of last edit
-    "engagementScore": "Number" // Calculated dynamically for analytics
-  }
+
   Quizes
   {
     "_id": "ObjectId", // Unique identifier for the quiz
@@ -196,7 +169,35 @@ Assignment
       "default": "Date.now"
     }
   }
-
+  
+  Posts
+  {
+      "_id": "ObjectId", // Unique identifier for the post
+      "roomId": "ObjectId", // The room where the post belongs
+      "authorId": "ObjectId", // The user who created the post
+      "authorName": "String", // Redundant field for faster display or we can optimize
+      "content": "String", // Text content of the post (optional)
+      "media": ["String"], // Array of media file URLs (images, videos, PDFs, etc.)
+      "type": { // Type of post
+        "type": "String",
+        "enum": ["text", "image", "video", "file", "poll"]
+      },
+      "pollOptions": ["String"], // Poll choices (if type is "poll")
+      "pollVotes": { // Tracks user votes in a poll
+        "userId": "String"
+      },
+      "likes": ["ObjectId"], // Users who liked the post
+      "commentsCount": { // Number of comments
+        "type": "Number",
+        "default": 0
+      },
+      "createdAt": { // Timestamp of post creation
+        "type": "Date",
+        "default": "Date.now"
+      },
+      "updatedAt": "Date", // Timestamp of last edit
+      "engagementScore": "Number" // Calculated dynamically for analytics
+    }
   Rooms
   {
     "_id": "ObjectId", // Unique identifier for the room
@@ -245,12 +246,25 @@ Assignment
   Users
   {
     "_id": "ObjectId", // Unique identifier for the user
+    "firstname":"String",
+    "lastname":"String",
     "username": "String", // User’s display name (unique)
     "email": "String", // Email for authentication (unique)
     "password": "String", // Securely stored password (hashed)
+    "phone":"String",//Because of incase of leading zeroes for safety
+    "verifications":{
+      "email": { // Email verification status
+        "type": "Boolean",
+        "default": false
+      },
+      "phone": { // Phone verification status
+        "type": "Boolean",
+        "default": false
+      }
+    },
     "role": { // Defines user permissions
       "type": "String",
-      "enum": ["student", "teacher", "admin", "general"]
+      "enum": ["room-owner","room-member", "admin", "general"]
     },
     "roles": ["String"], // List of multiple roles (e.g., ["moderator", "teacher"])
     "profilePic": "String", // Link to the profile image

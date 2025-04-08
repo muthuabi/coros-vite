@@ -19,15 +19,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
 import axos from "../axos";
 
-const dummyUsers = [
-  { username: "admin@krish.in", password: "admin123" },
-  { username: "username@krish.in", password: "password" },
-];
-
 const validationSchema = Yup.object({
   username: Yup.string()
-    .required("Username is required")
-    .email("Email should contain @ and the domain name."),
+    .required("Username is required"),
   password: Yup.string().required("Password is required"),
 });
 const Login = () => {
@@ -98,7 +92,7 @@ const Login = () => {
         >
           <div className="form-group">
             <TextField
-              label="Username (Email ID)"
+              label="Username"
               name="username"
               variant="standard"
               fullWidth

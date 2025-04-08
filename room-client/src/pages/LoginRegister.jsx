@@ -26,7 +26,7 @@ const LoginRegister = ({logregPath}) => {
             <div className="login-banner col-md-6 d-none d-lg-block">
                 <img src={banner} alt="Login Banner" className="banner-img" />
             </div>
-            <Box className="login-box col-md-*"> 
+            <Box className="login-box col-md-*" > 
                 <TogglePageContext.Provider value={{ isLoginPage, setIsLoginPage, passwordVisibilities, setPasswordVisibilities, togglePasswordVisibility }}>
                     {logregPath!=="sign-up"? <Login /> : <Register />}
                 </TogglePageContext.Provider>
