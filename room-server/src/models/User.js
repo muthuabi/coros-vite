@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const userSchema = new mongoose.Schema({
   firstname: String,
   lastname: String,
@@ -29,6 +28,6 @@ const userSchema = new mongoose.Schema({
   isBanned: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
   deletedAt: Date
-}, { timestamps: true }); // Adds createdAt & updatedAt automatically
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import DiscussionRoom from '../components/DiscussionRoom';
 import {
   Box,
@@ -47,8 +47,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from '@mui/material/InputAdornment';
 const drawerWidth = 240;
-
+import { useNavigate } from "react-router-dom";
 // Create a theme instance
+
 const getDesignTokens = (mode) => ({
   palette: {
     mode,
@@ -125,6 +126,7 @@ const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
 }));
 
 export default function HomeFeed() {
+  const navigate=useNavigate();
   const [mode, setMode] = useState('dark');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -148,6 +150,12 @@ export default function HomeFeed() {
   const toggleColorMode = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
+  useEffect(() => {
+    if(mode === 'light') {
+      navigate('/auth');
+
+    }
+  },[mode]);
 
   const drawer = (
     <div>

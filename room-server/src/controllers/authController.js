@@ -22,16 +22,21 @@ const emailArray = [
 ];
 const registerUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, phone, password } = req.body;
-
-    const existingUser = await User.findOne({ email });
+    const {username, firstname, lastname, email, phone, password } = req.body;
+    const existingUser = await User.findOne({username});
     if (existingUser) {
       return res
         .status(400)
-        .json({ success: false, message: "Email already registered" });
+        .json({ success: false, message: "Username Already Exists" });
     }
-
+    const existingEmail = await User.findOne({email});
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email Already Registered" });
+    }
     const newUser = new User({
+      username,
       firstname,
       lastname,
       email,
@@ -52,17 +57,16 @@ const registerUser = async (req, res) => {
   }
 };
 const loginUserAuth = async (req, res) => {
-  const { username = "admin@coros.in", password = "admin.coros.in" } = req.body || {};
+  const { username = "admin07", password = "admin.coros.in" } = req.body || {};
 
   try {
-    const user = await User.findOne({ email: username });
+    const user = await User.findOne({ username: username });
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-
     if (user.password !== password) {
       return res.status(401).json({
         success: false,

@@ -1,12 +1,13 @@
-const express=require("express");
-const app=express();
 const denv=require("dotenv");
-const cors=require("cors");
-const apiRoutes=require("./routes/apiRoutes");
-const connectDB=require("./config/dbConfig");
-connectDB();
 denv.config();
 const PORT=process.env.PORT || 5000;
+const connectDB=require("./config/dbConfig");
+connectDB();
+const express=require("express");
+const app=express();
+const cors=require("cors");
+const apiRoutes=require("./routes/apiRoutes");
+
 app.use(express.json());
 app.use(cors());
 app.get("/",(req,res)=>{

@@ -3,12 +3,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import {BrowserRouter as Router,Routes,Route,Navigate} from 'react-router-dom';
 import PageNotFound from './components/PageNotFound';
-import Home from './components/Home';
+import Home from './pages/Home';
 import LoginRegister from './pages/LoginRegister';
 import './styles/App.css';
-import Login from './components/Login';
-import Register from './components/Register';
 import ForgotPasswordDialog from './components/ForgotPassword';
+import DiscussionRoom from './components/DiscussionRoom';
 function App() {
   return (
     <Router>
@@ -19,6 +18,9 @@ function App() {
       <ToastContainer/>
       <Routes>
           <Route path='/' element={<Home/>}/>
+          <Route path='room'>
+            <Route index element={<DiscussionRoom/>}/>
+          </Route>
           <Route path='auth'>
               <Route index element={<Navigate to='sign-in'/>}/>
               <Route path='sign-in' element={<LoginRegister logregPath="sign-in" />}/>
