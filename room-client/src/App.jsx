@@ -8,6 +8,7 @@ import LoginRegister from './pages/LoginRegister';
 import './styles/App.css';
 import ForgotPasswordDialog from './components/ForgotPassword';
 import DiscussionRoom from './components/DiscussionRoom';
+import TryMUI from './components/TryMUI';
 function App() {
   return (
     <Router>
@@ -27,6 +28,7 @@ function App() {
               <Route path='sign-up' element={<LoginRegister logregPath="sign-up" />}/>
               <Route path='forgot-password' element={<ForgotPasswordDialog/>}/>
           </Route>
+          <Route path='try-mui' element={<TryMUI/>}/>
           <Route path='*' element={<PageNotFound/>}/>
       </Routes>
     </main>
