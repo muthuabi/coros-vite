@@ -9,8 +9,12 @@ import './styles/App.css';
 import ForgotPasswordDialog from './components/ForgotPassword';
 import DiscussionRoom from './components/DiscussionRoom';
 import TryMUI from './components/TryMUI';
+import { ThemeProvider } from './contexts/ThemeContext';
+import CssBaseline from '@mui/material/CssBaseline';
 function App() {
   return (
+    <ThemeProvider>
+    {/* <CssBaseline/> */}
     <Router>
     <div className="container-fluid main-container">
     <header>
@@ -34,6 +38,7 @@ function App() {
     </main>
     </div>
     </Router>
+    </ThemeProvider>
   );
 }
 

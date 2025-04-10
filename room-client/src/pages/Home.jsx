@@ -23,7 +23,6 @@ import {
   CardMedia,
   CardActions,
   Divider,
-  useTheme,
   ThemeProvider,
   createTheme,
   TextField,
@@ -42,13 +41,13 @@ import {
   Brightness7 as LightModeIcon,
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { styled } from "@mui/material/styles";
+import { styled,useTheme } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import InputAdornment from "@mui/material/InputAdornment";
-
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
+import {useThemeContext} from '../contexts/ThemeContext';
 // Create a theme instance
 const drawerWidth = 240;
 const getDesignTokens = (mode) => ({
@@ -128,13 +127,13 @@ const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
 
 export default function HomeFeed() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState("dark");
+  const theme=useTheme();
+  const {mode,toggleColorMode}=useThemeContext();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
-
-  const theme = createTheme(getDesignTokens(mode));
+  // const theme = createTheme(getDesignTokens(mode));
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -147,16 +146,6 @@ export default function HomeFeed() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-
-  const toggleColorMode = () => {
-    setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
-  };
-  useEffect(() => {
-    if (mode === "light") {
-      navigate("/auth");
-    }
-  }, [mode]);
-
   const drawer = (
     <div>
       <Toolbar />
@@ -189,7 +178,7 @@ export default function HomeFeed() {
     <ThemeProvider theme={theme}>
       {/*<DiscussionRoom/>*/}
       <Box sx={{ display: "flex" }}>
-        <CssBaseline />
+
         <AppBarStyled position="fixed">
           <Toolbar>
             {isMobile && (
