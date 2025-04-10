@@ -1,5 +1,5 @@
-import React, { useState,useEffect } from "react";
-import DiscussionRoom from '../components/DiscussionRoom';
+import React, { useState, useEffect } from "react";
+import DiscussionRoom from "../components/DiscussionRoom";
 import {
   Box,
   CssBaseline,
@@ -26,7 +26,7 @@ import {
   useTheme,
   ThemeProvider,
   createTheme,
-  TextField
+  TextField,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -43,37 +43,38 @@ import {
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { styled } from "@mui/material/styles";
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
-import InputAdornment from '@mui/material/InputAdornment';
-const drawerWidth = 240;
-import { useNavigate } from "react-router-dom";
-// Create a theme instance
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
+import InputAdornment from "@mui/material/InputAdornment";
 
+import { useNavigate } from "react-router-dom";
+import PostCard from "../components/PostCard";
+// Create a theme instance
+const drawerWidth = 240;
 const getDesignTokens = (mode) => ({
   palette: {
     mode,
-    ...(mode === 'light'
+    ...(mode === "light"
       ? {
           // Light mode colors
           background: {
-            default: '#f5f5f5',
-            paper: '#ffffff',
+            default: "#f5f5f5",
+            paper: "#ffffff",
           },
           text: {
-            primary: '#121212',
-            secondary: '#4a4a4a',
+            primary: "#121212",
+            secondary: "#4a4a4a",
           },
         }
       : {
           // Dark mode colors
           background: {
-            default: '#121212',
-            paper: '#1E1E1E',
+            default: "#121212",
+            paper: "#1E1E1E",
           },
           text: {
-            primary: '#ffffff',
-            secondary: '#b0b0b0',
+            primary: "#ffffff",
+            secondary: "#b0b0b0",
           },
         }),
   },
@@ -85,12 +86,12 @@ const Main = styled("main")(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   color: theme.palette.text.primary,
   minHeight: "100vh",
-  transition: theme.transitions.create('margin', {
+  transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   marginLeft: -drawerWidth,
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up("sm")]: {
     marginLeft: 0,
   },
 }));
@@ -99,7 +100,7 @@ const AppBarStyled = styled(AppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
   backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
-  boxShadow: 'none',
+  boxShadow: "none",
   borderBottom: `1px solid ${theme.palette.divider}`,
 }));
 
@@ -110,7 +111,7 @@ const DrawerStyled = styled(Drawer)(({ theme }) => ({
     width: drawerWidth,
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
-    borderRight: 'none',
+    borderRight: "none",
   },
 }));
 
@@ -126,55 +127,60 @@ const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
 }));
 
 export default function HomeFeed() {
-  const navigate=useNavigate();
-  const [mode, setMode] = useState('dark');
+  const navigate = useNavigate();
+  const [mode, setMode] = useState("dark");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
-  
+
   const theme = createTheme(getDesignTokens(mode));
-  
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  
+
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  
+
   const toggleColorMode = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+    setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
   useEffect(() => {
-    if(mode === 'light') {
-      navigate('/auth');
-
+    if (mode === "light") {
+      navigate("/auth");
     }
-  },[mode]);
+  }, [mode]);
 
   const drawer = (
     <div>
       <Toolbar />
       <Divider />
       <List>
-        {["Home", "Rooms", "Settings", "Profile", "Logout"].map((text, index) => {
-          const icons = [
-            <HomeIcon />, <GroupIcon />, <SettingsIcon />, <AccountCircleIcon />, <LogoutIcon />,
-          ];
-          return (
-            <ListItem button key={text}>
-              <ListItemIcon sx={{ color: "inherit" }}>
-                {icons[index]}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          );
-        })}
+        {["Home", "Rooms", "Settings", "Profile", "Logout"].map(
+          (text, index) => {
+            const icons = [
+              <HomeIcon />,
+              <GroupIcon />,
+              <SettingsIcon />,
+              <AccountCircleIcon />,
+              <LogoutIcon />,
+            ];
+            return (
+              <ListItem button key={text}>
+                <ListItemIcon sx={{ color: "inherit" }}>
+                  {icons[index]}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItem>
+            );
+          }
+        )}
       </List>
     </div>
   );
@@ -185,128 +191,137 @@ export default function HomeFeed() {
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBarStyled position="fixed">
-  <Toolbar>
-    {isMobile && (
-      <IconButton
-        color="inherit"
-        aria-label="open drawer"
-        edge="start"
-        onClick={handleDrawerToggle}
-        sx={{ mr: 2 }}
-      >
-        <MenuIcon />
-      </IconButton>
-    )}
-    
-    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-      Social Feed
-    </Typography>
-    
-    {/* Search Bar - Desktop */}
-    <Box sx={{ 
-      display: { xs: 'none', sm: 'flex' },
-      alignItems: 'center',
-      width: 300,
-      mr: 2
-    }}>
-      <TextField
-        variant="outlined"
-        size="small"
-        placeholder="Search..."
-        fullWidth
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
+          <Toolbar>
+            {isMobile && (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{ flexGrow: 1 }}
+            >
+              Social Feed
+            </Typography>
+
+            {/* Search Bar - Desktop */}
+            <Box
+              sx={{
+                display: { xs: "none", sm: "flex" },
+                alignItems: "center",
+                width: 300,
+                mr: 2,
+              }}
+            >
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Search..."
+                fullWidth
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Search Icon - Mobile */}
+            <IconButton
+              color="inherit"
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              sx={{ display: { xs: "flex", sm: "none" }, mr: 1 }}
+            >
               <SearchIcon />
-            </InputAdornment>
-          ),
-          sx: {
-            backgroundColor: mode === 'dark' ? '#333' : '#f5f5f5',
-            borderRadius: 1
-          }
-        }}
-      />
-    </Box>
-    
-    {/* Search Icon - Mobile */}
-    <IconButton
-      color="inherit"
-      onClick={() => setShowMobileSearch(!showMobileSearch)}
-      sx={{ display: { xs: 'flex', sm: 'none' }, mr: 1 }}
-    >
-      <SearchIcon />
-    </IconButton>
-    
-    <IconButton onClick={toggleColorMode} color="inherit">
-      {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
-    </IconButton>
-    
-    <IconButton
-      size="large"
-      edge="end"
-      aria-label="account of current user"
-      aria-controls="menu-appbar"
-      aria-haspopup="true"
-      onClick={handleMenuOpen}
-      color="inherit"
-    >
-      <Avatar src="https://i.pravatar.cc/150?img=33" alt="User Avatar" />
-    </IconButton>
-    
-    <Menu
-      id="menu-appbar"
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      keepMounted
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      open={Boolean(anchorEl)}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
-    </Menu>
-  </Toolbar>
-  
-  {/* Mobile Search Bar - appears when clicking search icon */}
-  {showMobileSearch && (
-    <Box sx={{ 
-      display: { xs: 'flex', sm: 'none' },
-      p: 1,
-      backgroundColor: mode === 'dark' ? '#333' : '#f5f5f5'
-    }}>
-      <TextField
-        autoFocus
-        variant="outlined"
-        size="small"
-        placeholder="Search..."
-        fullWidth
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-          sx: {
-            backgroundColor: mode === 'dark' ? '#1E1E1E' : '#fff',
-          }
-        }}
-      />
-      <IconButton 
-        onClick={() => setShowMobileSearch(false)}
-        sx={{ ml: 1 }}
-      >
-        <CloseIcon />
-      </IconButton>
-    </Box>
-  )}
-</AppBarStyled>
+            </IconButton>
+
+            <IconButton onClick={toggleColorMode} color="inherit">
+              {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenuOpen}
+              color="inherit"
+            >
+              <Avatar
+                src="https://i.pravatar.cc/150?img=33"
+                alt="User Avatar"
+              />
+            </IconButton>
+
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+            </Menu>
+          </Toolbar>
+
+          {/* Mobile Search Bar - appears when clicking search icon */}
+          {showMobileSearch && (
+            <Box
+              sx={{
+                display: { xs: "flex", sm: "none" },
+                p: 1,
+                backgroundColor: mode === "dark" ? "#333" : "#f5f5f5",
+              }}
+            >
+              <TextField
+                autoFocus
+                variant="outlined"
+                size="small"
+                placeholder="Search..."
+                fullWidth
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              <IconButton
+                onClick={() => setShowMobileSearch(false)}
+                sx={{ ml: 1 }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          )}
+        </AppBarStyled>
 
         <Box
           component="nav"
@@ -322,8 +337,11 @@ export default function HomeFeed() {
               keepMounted: true, // Better open performance on mobile.
             }}
             sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              display: { xs: "block", sm: "none" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
             }}
           >
             {drawer}
@@ -332,66 +350,22 @@ export default function HomeFeed() {
           <DrawerStyled
             variant="permanent"
             sx={{
-              display: { xs: 'none', sm: 'block' },
+              display: { xs: "none", sm: "block" },
             }}
           >
             {drawer}
           </DrawerStyled>
         </Box>
 
-        <Main sx={{ 
-          margin:"auto",
-          padding: { xs: 2, sm: 3 },
-        }}>
+        <Main
+          sx={{
+            margin: "auto",
+            padding: { xs: 2, sm: 3 },
+          }}
+        >
           <Toolbar />
           {dummyPosts.map((post) => (
-            <Card key={post.id} sx={{ 
-              mb: 3,
-              backgroundColor: 'background.paper',
-              borderRadius: 2,
-              boxShadow: 3,
-            }}>
-              <CardHeader
-                avatar={
-                  <Avatar src={post.avatar} alt={post.username} />
-                }
-                action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
-                  </IconButton>
-                }
-                title={post.username}
-                subheader={post.createdAt}
-              />
-              <CardContent>
-                <Typography variant="body1" color="text.primary">
-                  {post.content}
-                </Typography>
-              </CardContent>
-              <CardMedia
-                component="img"
-                image={post.image}
-                alt="Post image"
-                sx={{ maxHeight: 400, objectFit: 'cover' }}
-              />
-              <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                  <FavoriteIcon />
-                  <Typography variant="body2" sx={{ ml: 1 }}>
-                    {post.likes}
-                  </Typography>
-                </IconButton>
-                <IconButton aria-label="comment">
-                  <CommentIcon />
-                  <Typography variant="body2" sx={{ ml: 1 }}>
-                    {post.comments}
-                  </Typography>
-                </IconButton>
-                <IconButton aria-label="share">
-                  <ShareIcon />
-                </IconButton>
-              </CardActions>
-            </Card>
+            <PostCard post={post} key={post.id} />
           ))}
         </Main>
       </Box>
