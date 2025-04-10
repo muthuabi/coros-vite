@@ -45,7 +45,7 @@ import { styled,useTheme } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import InputAdornment from "@mui/material/InputAdornment";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import {useThemeContext} from '../contexts/ThemeContext';
 // Create a theme instance
@@ -146,24 +146,27 @@ export default function HomeFeed() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+  const routes={"Home":"/", "Rooms":"/room", "Settings":"/settings", "Profile":"/profile", "Logout":"/logout"};
+    const icons = [
+    <HomeIcon />,
+    <GroupIcon />,
+    <SettingsIcon />,
+    <AccountCircleIcon />,
+    <LogoutIcon />,
+  ];
   const drawer = (
     <div>
       <Toolbar />
       <Divider />
       <List>
-        {["Home", "Rooms", "Settings", "Profile", "Logout"].map(
+        {
+          Object.keys(routes).map(
           (text, index) => {
-            const icons = [
-              <HomeIcon />,
-              <GroupIcon />,
-              <SettingsIcon />,
-              <AccountCircleIcon />,
-              <LogoutIcon />,
-            ];
+
             return (
               <ListItem button key={text}>
                 <ListItemIcon sx={{ color: "inherit" }}>
-                  {icons[index]}
+                  <Link to={routes[text]}>{icons[index]}</Link>
                 </ListItemIcon>
                 <ListItemText primary={text} />
               </ListItem>
