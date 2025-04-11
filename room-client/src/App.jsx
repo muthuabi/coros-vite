@@ -14,7 +14,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 function App() {
   return (
     <ThemeProvider>
-    {/* <CssBaseline/> */}
+    <CssBaseline/>
     <Router>
     <div className="container-fluid main-container">
     <header>

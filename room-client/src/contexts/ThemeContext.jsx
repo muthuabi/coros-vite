@@ -16,6 +16,20 @@ export function ThemeProvider({ children }) {
     localStorage.setItem("coros-theme",mode);
   },[mode])
   const theme = useMemo(() => createTheme({
+    typography: {
+      fontFamily: [
+        'Poppins',
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(',')},
     palette: {
       mode,
       ...(mode === 'light' ? {
