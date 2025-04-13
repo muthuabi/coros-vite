@@ -9,6 +9,7 @@ import './styles/App.css';
 import ForgotPasswordDialog from './components/ForgotPassword';
 import DiscussionRoom from './components/DiscussionRoom';
 import TryMUI from './components/TryMUI';
+import MarkupEditor from './components/MarkupEditor';
 import { ThemeProvider } from './contexts/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
 function App() {
@@ -33,6 +34,7 @@ function App() {
               <Route path='forgot-password' element={<ForgotPasswordDialog/>}/>
           </Route>
           <Route path='try-mui' element={<TryMUI/>}/>
+          <Route path='try-editor' element={<MarkupEditor/>}/>
           <Route path='*' element={<PageNotFound/>}/>
       </Routes>
     </main>

@@ -161,8 +161,12 @@ Assignment
     "_id": "ObjectId", // Unique identifier for the comment
     "postId": "ObjectId", // Post where the comment is added
     "createdBy": "ObjectId", // User who commented
+    "commentId":"ObjectId",//Parent comment ID of the current comment
     "content": "String", // Comment text
     "likes": ["ObjectId"], // Users who liked the comment
+    "accepts":["ObjectId"], //Users who accepted as the answer
+    "up":["ObjectId"],
+    "down":["ObjectId"], 
     "reports": ["ObjectId"], // Users who reported the comment
     "createdAt": { // Timestamp when the comment was created
       "type": "Date",
@@ -187,6 +191,7 @@ Assignment
         "userId": "String"
       },
       "likes": ["ObjectId"], // Users who liked the post
+      "tags":["String"], //Tags mentioned in the Post
       "commentsCount": { // Number of comments
         "type": "Number",
         "default": 0
@@ -215,7 +220,7 @@ Assignment
       "default": true
     },
     "joinRequests": ["ObjectId"], // Users who requested to join (for private rooms)
-    "categories": ["String"], // Tags/categories for the room (e.g., ["Technology", "Gaming"])
+    "tags": ["String"], // Tags/categories for the room (e.g., ["Technology", "Gaming"])
     "pinnedPosts": ["ObjectId"], // Important posts pinned at the top
     "postsCount": { // Number of posts in the room
       "type": "Number",

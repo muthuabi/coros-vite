@@ -44,6 +44,7 @@ const PostCard = ({ post }) => {
       component="img"
       image={post.image}
       alt="Post image"
+      loading="lazy"
       sx={{ maxHeight: 400, objectFit: "cover" }}
     />
     <CardActions disableSpacing>
