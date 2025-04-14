@@ -28,9 +28,6 @@ function App() {
                <Route index element={<HomeFeed/>} />
                <Route path='room' element={<DiscussionRoom/>}/>
           </Route>
-{/*          <Route path='room'>
-            <Route index element={<DiscussionRoom/>}/>
-          </Route>*/}
           <Route path='auth'>
               <Route index element={<Navigate to='sign-in'/>}/>
               <Route path='sign-in' element={<LoginRegister logregPath="sign-in" />}/>
