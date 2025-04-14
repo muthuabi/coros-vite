@@ -14,6 +14,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
 import { UIStateProvider } from './contexts/UIStateContext';
 import Room from './pages/Room';
+import HomeFeed from './components/HomeFeed';
 function App() {
   return (
     <UIStateProvider>
@@ -21,26 +22,26 @@ function App() {
     <CssBaseline/>
     <Router>
     <div className="container-fluid main-container">
-    <header>
-    </header>
-    <main>
       <ToastContainer stacked/>
       <Routes>
-          <Route path='/' element={<Home/>}/>
-          <Route path='room'>
-            <Route index element={<DiscussionRoom/>}/>
+          <Route path='/' element={<Home/>}>
+               <Route index element={<HomeFeed/>} />
+               <Route path='room' element={<DiscussionRoom/>}/>
           </Route>
+{/*          <Route path='room'>
+            <Route index element={<DiscussionRoom/>}/>
+          </Route>*/}
           <Route path='auth'>
               <Route index element={<Navigate to='sign-in'/>}/>
               <Route path='sign-in' element={<LoginRegister logregPath="sign-in" />}/>
               <Route path='sign-up' element={<LoginRegister logregPath="sign-up" />}/>
               <Route path='forgot-password' element={<ForgotPasswordDialog/>}/>
           </Route>
+
           <Route path='try-mui' element={<Room/>}/>
           <Route path='try-editor' element={<MarkupEditor/>}/>
           <Route path='*' element={<PageNotFound/>}/>
       </Routes>
-    </main>
     </div>
     </Router>
     </ThemeProvider>

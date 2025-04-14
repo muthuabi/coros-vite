@@ -126,7 +126,7 @@ const handleLike = (postId, e) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="sticky">
+      <AppBar position="sticky" sx={{display:"none"}}>
         <Toolbar>
           {isMobile && activePost && (
             <IconButton edge="start" color="inherit" onClick={() => setActivePost(null)}>
@@ -144,7 +144,7 @@ const handleLike = (postId, e) => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" sx={{ py: 3, flex: 1 }}>
+      <Container maxWidth="md" sx={{ py: 1, flex: 1 }}>
         {!activePost ? (
           <>
             <Typography variant="h4" gutterBottom>
