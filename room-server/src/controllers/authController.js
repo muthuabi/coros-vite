@@ -1,28 +1,9 @@
 const User = require("../models/User");
-// const express = require("express");
 const { sendEmail } = require("../controllers/emailController");
-const userArray = [
-  { username: "admin@coros.in", password: "admin.coros.in" },
-  { username: "subadmin@coros.in", password: "subadmin.coros.in" },
-  { username: "viewer@coros.in", password: "viewer.coros.in" },
-];
-const emailArray = [
-  {
-    email: "muthuabi292@gmail.com",
-  },
-  { email: "muthuabi027@gmail.com" },
-  { email: "sathishboost3@gmail.com" },
-  { email: "murs4002@gmail.com" },
-  {
-    email: "murugan001ab@gmail.com"
-  },
-  {
-    email:"gowtham01102@gmail.com"
-  }
-];
 const registerUser = async (req, res) => {
   try {
-    const {username, firstname, lastname, email, phone, password } = req.body;
+    let {username, firstname, lastname, email, phone, password } = req.body;
+    phone=phone?.trim()||null;
     const existingUser = await User.findOne({username});
     if (existingUser) {
       return res
@@ -35,11 +16,19 @@ const registerUser = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Email Already Registered" });
     }
+    if(phone)
+    {
+      const existingPhone=await User.findOne({phone});
+      if(existingPhone)
+      {
+        return res.status(400).json({success:false,message:"Phone Number Already Registered"});
+      }
+    }
     const newUser = new User({
-      username,
-      firstname,
-      lastname,
-      email,
+      username:username?.trim(),
+      firstname:firstname?.trim(),
+      lastname:lastname?.trim(),
+      email:email?.trim(),
       phone,
       password,
     });
@@ -57,10 +46,10 @@ const registerUser = async (req, res) => {
   }
 };
 const loginUserAuth = async (req, res) => {
-  const { username = "admin07", password = "admin.coros.in" } = req.body || {};
-
   try {
-    const user = await User.findOne({ username: username });
+    let { username , password } = req.body;
+    username=username?.trim();
+    const user = await User.findOne({$or:[{ username: username },{email:username}]});
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -79,8 +68,9 @@ const loginUserAuth = async (req, res) => {
     res.status(500).json({ success: false, message: "Login Failed", error });
   }
 };
-const forgotPassword = (req, res) => {
-  const { email = "muthuabi292@gmail.com" } = req.body || {};
+const forgotPassword = async(req, res) => {
+  try{
+  const {email} = req.body;
   const mailOptions = {
     to: email,
     subject: "Password Reset",
@@ -89,7 +79,7 @@ const forgotPassword = (req, res) => {
     your password has been reset and you can click here to set new password 
     <a href='https://google.com'>Way to Reset</a></p></body></main></html>`,
   };
-  const emailUser = emailArray.find((emailUser) => emailUser.email === email.trim());
+  const emailUser = await User.findOne({email});
   if (!emailUser) {
     res
       .status(404)
@@ -109,7 +99,13 @@ const forgotPassword = (req, res) => {
     .catch((error) => {
       res.status(500).json({ sucess: false, message: "Email not sent", error });
     });
+  }
+  catch(err)
+  {
+    res.status(500).json({success:false,message:"Email not sent",error:err});
+  }
 };
+
 module.exports = {
   loginUserAuth,
   forgotPassword,

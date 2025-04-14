@@ -1,41 +1,51 @@
 .editor-wrapper {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 0.5rem;
-  background: #fafafa;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: sans-serif;
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 6px;
+  margin-bottom: 10px;
+  background-color: #f7f7f7;
+  padding: 8px;
+  border-radius: 6px;
 }
 
+.toolbar select,
 .toolbar button {
   padding: 5px 10px;
-  border: none;
-  background: #e0e0e0;
-  border-radius: 5px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
 }
 
 .toolbar button.active {
-  background: #007bff;
-  color: white;
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+.editor-area {
+  min-height: 200px;
+  outline: none;
 }
 .tiptap.ProseMirror
 {
-  padding:5px;
-  min-height:200px;
-  max-height:250px;
-  overflow-y: scroll;
+  padding:3px;
 }
-.editor-area:focus-visible,.tiptap.ProseMirror:focus-visible
+.tiptap.ProseMirror:focus-visible {
+  outline: none !important;
+  box-shadow: none;
+}
+.editor-area p
 {
-  border:none;
+  margin:3px 0;
 }
-.editor-area p {
-  margin: 2px 0;
+
+a{
+  cursor: pointer;
 }

@@ -12,8 +12,11 @@ import TryMUI from './components/TryMUI';
 import MarkupEditor from './components/MarkupEditor';
 import { ThemeProvider } from './contexts/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
+import { UIStateProvider } from './contexts/UIStateContext';
+import Room from './pages/Room';
 function App() {
   return (
+    <UIStateProvider>
     <ThemeProvider>
     <CssBaseline/>
     <Router>
@@ -21,7 +24,7 @@ function App() {
     <header>
     </header>
     <main>
-      <ToastContainer/>
+      <ToastContainer stacked/>
       <Routes>
           <Route path='/' element={<Home/>}/>
           <Route path='room'>
@@ -33,7 +36,7 @@ function App() {
               <Route path='sign-up' element={<LoginRegister logregPath="sign-up" />}/>
               <Route path='forgot-password' element={<ForgotPasswordDialog/>}/>
           </Route>
-          <Route path='try-mui' element={<TryMUI/>}/>
+          <Route path='try-mui' element={<Room/>}/>
           <Route path='try-editor' element={<MarkupEditor/>}/>
           <Route path='*' element={<PageNotFound/>}/>
       </Routes>
@@ -41,6 +44,7 @@ function App() {
     </div>
     </Router>
     </ThemeProvider>
+    </UIStateProvider>
   );
 }
 

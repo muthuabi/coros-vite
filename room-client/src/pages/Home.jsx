@@ -50,34 +50,6 @@ import PostCard from "../components/PostCard";
 import {useThemeContext} from '../contexts/ThemeContext';
 // Create a theme instance
 const drawerWidth = 240;
-const getDesignTokens = (mode) => ({
-  palette: {
-    mode,
-    ...(mode === "light"
-      ? {
-          // Light mode colors
-          background: {
-            default: "#f5f5f5",
-            paper: "#ffffff",
-          },
-          text: {
-            primary: "#121212",
-            secondary: "#4a4a4a",
-          },
-        }
-      : {
-          // Dark mode colors
-          background: {
-            default: "#121212",
-            paper: "#1E1E1E",
-          },
-          text: {
-            primary: "#ffffff",
-            secondary: "#b0b0b0",
-          },
-        }),
-  },
-});
 
 const Main = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -202,7 +174,7 @@ export default function HomeFeed() {
               component="div"
               sx={{ flexGrow: 1 }}
             >
-              Social Feed
+              CoRoS
             </Typography>
 
             {/* Search Bar - Desktop */}

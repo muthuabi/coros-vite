@@ -1,6 +1,4 @@
 const nodemailer = require("nodemailer");
-const denv=require("dotenv");
-denv.config();
 const EU=process.env.EMAIL_USER;
 // console.log(EU);
 // console.log(process.env.EMAIL_PASS);

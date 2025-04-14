@@ -5,7 +5,10 @@ const userSchema = new mongoose.Schema({
   username: { type: String,unique:true,required:true,length: { min: 3, max: 10 }, match: /^[a-z]/ },
   email: { type: String, unique: true, required: true, match: /.+\@.+\..+/ },
   password: { type: String, required: true },
-  phone: String,
+  phone: {
+    type: String,
+    default:null
+  },
 
   verifications: {
     email: { type: Boolean, default: false },

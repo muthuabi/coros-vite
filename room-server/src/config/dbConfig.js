@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const denv=require("dotenv");
-denv.config();
 // mongoose.connect(process.env.MONGO_CONN_STR, {
 //     useNewUrlParser: true,
 //     useUnifiedTopology: true,
