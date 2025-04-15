@@ -159,7 +159,7 @@ const Login = () => {
               Forgot Password
             </Button>
           </Link>
-          <Link to="/auth/sign-up">
+          <Link to="/auth/register">
             <Button variant="text" size="small">
               Sign Up
             </Button>

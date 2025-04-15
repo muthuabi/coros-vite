@@ -30,8 +30,8 @@ function App() {
           </Route>
           <Route path='auth'>
               <Route index element={<Navigate to='sign-in'/>}/>
-              <Route path='sign-in' element={<LoginRegister logregPath="sign-in" />}/>
-              <Route path='sign-up' element={<LoginRegister logregPath="sign-up" />}/>
+              <Route path='login' element={<LoginRegister logregPath="sign-in" />}/>
+              <Route path='register' element={<LoginRegister logregPath="sign-up" />}/>
               <Route path='forgot-password' element={<ForgotPasswordDialog/>}/>
           </Route>
 

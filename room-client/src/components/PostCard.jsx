@@ -46,7 +46,6 @@ const PostCard = ({ post }) => {
           variant="rectangular"
           width="100%"
           height={400}
-          sx={{ borderRadius: 2 }}
         />
       )}
 

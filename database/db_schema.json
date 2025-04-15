@@ -165,8 +165,12 @@ Assignment
     "content": "String", // Comment text
     "likes": ["ObjectId"], // Users who liked the comment
     "accepts":["ObjectId"], //Users who accepted as the answer
-    "up":["ObjectId"],
-    "down":["ObjectId"], 
+    "up":["ObjectId"],//upvotes
+    "down":["ObjectId"], //upvotes
+    "isEdited": { // Whether the comment was edited
+      "type": "Boolean",
+      "default": false
+    },
     "reports": ["ObjectId"], // Users who reported the comment
     "createdAt": { // Timestamp when the comment was created
       "type": "Date",
@@ -184,7 +188,12 @@ Assignment
       "media": ["String"], // Array of media file URLs (images, videos, PDFs, etc.)
       "type": { // Type of post
         "type": "String",
-        "enum": ["text", "image", "video", "file", "poll"]
+        "enum": ["text", "image", "video", "file", "poll","question"] // Question is like stackoverflow markup content kinda
+      },
+      "parentPostId": "ObjectId", // For threaded discussions (optional)
+      "isEdited": { // Whether the post was edited
+        "type": "Boolean",
+        "default": false
       },
       "pollOptions": ["String"], // Poll choices (if type is "poll")
       "pollVotes": { // Tracks user votes in a poll

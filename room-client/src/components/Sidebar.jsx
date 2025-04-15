@@ -40,14 +40,14 @@ const Sidebar=(props)=>{
 
 const getRole = () => {
   const user = JSON.parse(localStorage.getItem("user")); // or use your auth context
-  return user?.role || "user"; // fallback to 'guest'
+  return user?.role || "guest"; // fallback to 'guest'
 };
 
 // Base role-based routes
 const roleBasedRoutes = {
   guest: [
     { label: "Home", route: "/", icon: <HomeIcon /> },
-    { label: "Login", route: "/auth/sign-in", icon: <AccountCircleIcon /> },
+    { label: "Login", route: "/auth/login", icon: <AccountCircleIcon /> },
   ],
   user: [
     { label: "Home", route: "/", icon: <HomeIcon /> },

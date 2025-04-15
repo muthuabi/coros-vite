@@ -1,19 +1,26 @@
-const denv=require("dotenv");
+const denv = require("dotenv");
+const express = require("express");
+const cors = require("cors");
+const app = express();
 denv.config();
-const PORT=process.env.PORT || 5000;
-const connectDB=require("./config/dbConfig");
+const PORT = process.env.PORT || 5000;
+const connectDB = require("./config/dbConfig");
 connectDB();
-const express=require("express");
-const app=express();
-const cors=require("cors");
-const apiRoutes=require("./routes/apiRoutes");
-
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+const CORS_OPTION =
+{
+    origin: "http://localhost:5173",
+    credentials: true,
+}
+const apiRoutes = require("./routes/apiRoutes");
 app.use(express.json());
-app.use(cors());
-app.get("/",(req,res)=>{
+app.use(cors(CORS_OPTION));
+
+app.get("/", (req, res) => {
     res.send("Hello World");
 });
-app.use("/api",apiRoutes);
-app.listen(PORT,(svr)=>{
+app.use("/api", apiRoutes);
+app.listen(PORT, (svr) => {
     console.log(`Server is running on port ${PORT}`);
 });

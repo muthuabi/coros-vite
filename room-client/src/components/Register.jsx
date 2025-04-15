@@ -72,7 +72,7 @@ const Register = () => {
       });
     
       registerUserPromise
-        .then(() => navigate("/auth/sign-in"))
+        .then(() => navigate("/auth/login"))
         .catch((err) => console.log(err))
         .finally(() => setLoadStatus(false));
     },
@@ -248,7 +248,7 @@ const Register = () => {
           </Button>
         </form>
         <Divider>or</Divider>
-        <Link to="/auth/sign-in">
+        <Link to="/auth/login">
         <Button variant="outlined" sx={{ borderRadius: "10px" }} fullWidth>
           Sign In
           {/* <Typography variant="button" color="initial">Google</Typography> */}
