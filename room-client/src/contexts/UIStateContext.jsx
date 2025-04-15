@@ -1,13 +1,15 @@
 import { useContext,createContext,useEffect,useState } from "react";
 const UIStateContext = createContext();
+export const useUIState = () => useContext(UIStateContext);
 export const UIStateProvider = ({ children }) => {
     const [uiState, setUIState] = useState({
         sidebar:false,
         navbar:false,
         loader:false,
         modal:false,
-        profileModal:false,
-        dialog:false
+        editprofileDialog:false,
+        dialog:false,
+        globalLoader:false,
     });
     const toggleUIState=(key)=>{
         setUIState((prevState) => ({ ...prevState, [key]: !prevState[key] }));

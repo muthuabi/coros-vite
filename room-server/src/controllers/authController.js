@@ -5,9 +5,10 @@ const jwt = require("jsonwebtoken");
 const generateToken = require("../utils/generateToken");
 const registerUser = async (req, res) => {
   try {
-    let { username, firstname, lastname, email, phone, password } = req.body;
+    let { username, firstname, lastname, email, phone, password,confirmPassword } = req.body;
     phone = phone?.trim() || null;
-
+    if(password!==confirmPassword)
+      return res.status(400).json({ success: false, message: "Password and Confirm Password do not match" });
     const existingUser = await User.findOne({ username });
     if (existingUser)
       return res.status(400).json({ success: false, message: "Username Already Exists" });
@@ -53,9 +54,11 @@ const loginUserAuth = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       return res.status(401).json({ success: false, message: "Invalid Password" });
-
-    const JWT_TOKEN = generateToken(user._id);
-
+    if(user.isBanned)
+      return res.status(403).json({ success: false, message: "User is Banned" });
+    if(user.isDeleted)
+      return res.status(404).json({success: false, message: "User Account Not Found"});
+    const JWT_TOKEN = generateToken(user);
     res.cookie("JWT", JWT_TOKEN, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // only on HTTPS in prod

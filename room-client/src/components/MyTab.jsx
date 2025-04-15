@@ -17,7 +17,8 @@ const MyTab = ({
 }) => {
   const [value, setValue] = useState(active);
   const theme=useTheme();
-  const isVertical=useMediaQuery(theme.breakpoints.down('sm'));
+  // const isVertical=useMediaQuery(theme.breakpoints.down('sm'));
+  const isVertical=false;
   useEffect(() => {
     setValue(active);
   }, [active]);

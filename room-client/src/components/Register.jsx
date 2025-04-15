@@ -41,7 +41,7 @@ const Register = () => {
   const [loadStatus, setLoadStatus] = useState(false);
 
   const registerUser = async (userData) => {
-    const response = await axos.post("http://localhost:5000/api/auth/register-user", userData);
+    const response = await axos.post("/api/auth/register-user", userData);
     return response.data;
   };
 

@@ -27,15 +27,7 @@ import createTheme from "@mui/material/styles/createTheme";
 import TextField from "@mui/material/TextField";
 
 // MUI Icons
-import HomeIcon from "@mui/icons-material/Home";
-import GroupIcon from "@mui/icons-material/Group";
-import SettingsIcon from "@mui/icons-material/Settings";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import LogoutIcon from "@mui/icons-material/Logout";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import CommentIcon from "@mui/icons-material/ChatBubble";
+import LoginIcon from "@mui/icons-material/Login";
 import DarkModeIcon from "@mui/icons-material/Brightness4";
 import LightModeIcon from "@mui/icons-material/Brightness7";
 
@@ -48,7 +40,8 @@ import { useNavigate,Link,Outlet } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import {useThemeContext} from '../contexts/ThemeContext';
 import Sidebar from '../components/Sidebar';
-
+import { useAuth } from "../contexts/AuthContext";
+import Button from '@mui/material/Button'
 const drawerWidth = 240;
 const Main = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -75,6 +68,7 @@ const AppBarStyled = styled(AppBar)(({ theme }) => ({
 export default function HomeFeed() {
   const navigate = useNavigate();
   const theme=useTheme();
+  const {loggedIn,user,roleBasedRoutes,handleLogin,logout}=useAuth();
   const {mode,toggleColorMode}=useThemeContext();
   const [anchorEl, setAnchorEl] = useState(null);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -151,7 +145,10 @@ export default function HomeFeed() {
             <IconButton onClick={toggleColorMode} color="inherit">
               {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
-            <IconButton
+            {
+              (loggedIn)?(<>
+
+                <IconButton
               size="large"
               edge="end"
               aria-label="account of current user"
@@ -182,8 +179,17 @@ export default function HomeFeed() {
             >
               <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+              <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
+              </>):(<Button
+                variant="text"
+                color="default"
+                startIcon={<LoginIcon />}
+                onClick={handleLogin}
+              >
+                Login
+              </Button>)
+            }
           </Toolbar>
           {/* Mobile Search Bar - appears when clicking search icon */}
           {showMobileSearch && (
@@ -219,7 +225,7 @@ export default function HomeFeed() {
             </Box>
           )}
         </AppBarStyled>
-        <Sidebar drawerWidth={drawerWidth} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}/>
+        <Sidebar rolebased drawerWidth={drawerWidth} mobileOpen={mobileOpen} roleBasedRoutes={roleBasedRoutes} handleDrawerToggle={handleDrawerToggle}/>
         <Main
           sx={{
             margin: "auto",

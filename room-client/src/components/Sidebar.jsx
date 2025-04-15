@@ -9,22 +9,10 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import {useTheme,styled} from '@mui/material/styles';
 import {Link,useLocation} from 'react-router-dom';
-import {
-  Home as HomeIcon,
-  Group as GroupIcon,
-  Settings as SettingsIcon,
-  AccountCircle as AccountCircleIcon,
-  Logout as LogoutIcon,
-  MoreVert as MoreVertIcon,
-  Favorite as FavoriteIcon,
-  Share as ShareIcon,
-  ChatBubble as CommentIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
-} from "@mui/icons-material";
+import iconMap from "../utils/iconMap";
 
 const Sidebar=(props)=>{
-  const {drawerWidth,handleDrawerToggle,mobileOpen}=props;
+  const {drawerWidth,handleDrawerToggle,mobileOpen,roleBasedRoutes}=props;
   const theme=useTheme();
   const location=useLocation();
   const DrawerStyled = styled(Drawer)(({ theme }) => ({
@@ -44,33 +32,32 @@ const getRole = () => {
 };
 
 // Base role-based routes
-const roleBasedRoutes = {
-  guest: [
-    { label: "Home", route: "/", icon: <HomeIcon /> },
-    { label: "Login", route: "/auth/login", icon: <AccountCircleIcon /> },
-  ],
-  user: [
-    { label: "Home", route: "/", icon: <HomeIcon /> },
-    { label: "Rooms", route: "/room", icon: <GroupIcon /> },
-    { label: "Profile", route: "/profile", icon: <AccountCircleIcon /> },
-    { label: "Logout", route: "/logout", icon: <LogoutIcon /> },
-  ],
-  admin: [
-    { label: "Home", route: "/", icon: <HomeIcon /> },
-    { label: "Users", route: "/admin/users", icon: <GroupIcon /> },
-    { label: "Settings", route: "/admin/settings", icon: <SettingsIcon /> },
-    { label: "Logout", route: "/logout", icon: <LogoutIcon /> },
-  ],
-};
+// const roleBasedRoutes = {
+//   guest: [
+//     { label: "Home", route: "/", icon: <HomeIcon /> },
+//     { label: "Login", route: "/auth/login", icon: <AccountCircleIcon /> },
+//   ],
+//   user: [
+//     { label: "Home", route: "/", icon: <HomeIcon /> },
+//     { label: "Rooms", route: "/room", icon: <GroupIcon /> },
+//     { label: "Profile", route: "/profile", icon: <AccountCircleIcon /> },
+//     { label: "Logout", route: "/logout", icon: <LogoutIcon /> },
+//   ],
+//   admin: [
+//     { label: "Home", route: "/", icon: <HomeIcon /> },
+//     { label: "Users", route: "/admin/users", icon: <GroupIcon /> },
+//     { label: "Settings", route: "/admin/settings", icon: <SettingsIcon /> },
+//     { label: "Logout", route: "/logout", icon: <LogoutIcon /> },
+//   ],
+// };
 
 // Dynamic room routes (will be added when in a room context)
 const roomRoutes = [
-  { label: "Room Settings", route: "/room/settings", icon: <SettingsIcon /> },
-  { label: "Room Participants", route: "/room/participants", icon: <GroupIcon /> },
+  { label: "Room Settings", route: "/room/settings", icon:"SettingsIcon"},
+  { label: "Room Participants", route: "/room/participants", icon:"GroupIcon" },
 ];
-// Get role and generate routes
-const currentUserRole = getRole(); // e.g. 'guest', 'user', 'admin'
-const baseRoutes = roleBasedRoutes[currentUserRole] || roleBasedRoutes["guest"]; // Default to guest if no role
+// Get role and generate routes // e.g. 'guest', 'user', 'admin'
+const baseRoutes = roleBasedRoutes // Default to guest if no role
 
 // Add room routes if we're currently on a room path
 const isRoomPath = location.pathname.startsWith("/room"); // Check if the current path is a room-related one
@@ -100,7 +87,7 @@ const drawer = (
                     }}
                   >
                 <ListItemIcon sx={{ color: "inherit" }}>
-                  {value.icon}
+                  {iconMap(value.icon)}
                 </ListItemIcon>
                 <ListItemText primary={value.label} />
               </ListItem>

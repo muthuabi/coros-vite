@@ -15,10 +15,16 @@ const userSchema = new mongoose.Schema({
     phone: { type: Boolean, default: false },
   },
 
-  role: { type: String, enum: ["roomOwner", "roomMember", "admin", "general"], default: "general" },
+  role: { type: String, enum: ["admin", "visitor","user"], default: "user" },
   profilePic: String,
   bio: String,
-
+  socialLinks: {
+    twitter: { type: String, default: null },
+    facebook: { type: String, default: null },
+    instagram: { type: String, default: null },
+    linkedin: { type: String, default: null },
+    website: { type: String, default: null }
+  },
   lastActive: { type: Date, default: Date.now },
   lastLogin: Date,
   failedLoginAttempts: { type: Number, default: 0 },

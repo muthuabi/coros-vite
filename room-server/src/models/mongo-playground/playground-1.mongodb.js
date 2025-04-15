@@ -3,7 +3,7 @@
 // The current database to use.
 
 use("coros");
-// db.users.find();
+db.users.find();
 // db.users.deleteMany({});
 
 

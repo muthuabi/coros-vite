@@ -11,12 +11,12 @@ app.use(cookieParser());
 const CORS_OPTION =
 {
     origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 }
-const apiRoutes = require("./routes/apiRoutes");
 app.use(express.json());
 app.use(cors(CORS_OPTION));
-
+const apiRoutes = require("./routes/apiRoutes");
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
