@@ -17,7 +17,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import IconButton from "@mui/material/IconButton";
 import axos from "../axos";
 const validationSchema = Yup.object({
-  username:Yup.string().required("Username is Required").matches(/^[a-z]/,"Username should start with alphabet").min("3","Username should be at least 3 characters").max(10,"Username shouldn't exceed 10 characters"),
+  username:Yup.string().required("Username is Required").matches(/^[a-z]/,"Username should start with lowercase alphabet").min("3","Username should be at least 3 characters").max(20,"Username shouldn't exceed 10 characters"),
   firstname: Yup.string().required("First Name is required"),
   lastname: Yup.string().required("Last Name is required"),
   email: Yup.string()

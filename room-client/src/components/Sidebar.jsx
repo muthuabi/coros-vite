@@ -40,7 +40,7 @@ const Sidebar=(props)=>{
 
 const getRole = () => {
   const user = JSON.parse(localStorage.getItem("user")); // or use your auth context
-  return user?.role || "guest"; // fallback to 'guest'
+  return user?.role || "user"; // fallback to 'guest'
 };
 
 // Base role-based routes
