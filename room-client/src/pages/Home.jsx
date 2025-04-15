@@ -177,7 +177,7 @@ export default function HomeFeed() {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem component={Link} to={"/profile"} onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
               <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
