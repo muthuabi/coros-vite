@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const generateToken = (user) => {
   return jwt.sign(
     {
-      id: user._id.toString(), // Convert ObjectId to string
+      _id: user._id.toString(), // Convert ObjectId to string
       username: user.username,
       role: user.role
     },

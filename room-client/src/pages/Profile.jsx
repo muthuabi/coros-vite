@@ -81,7 +81,7 @@ const Profile = () => {
   ];
 
   return (
-    <Box sx={{ mx: 'auto', p: isMobile ? 1 : 2 }}>
+    <Box sx={{ mx: 'auto', p: 'auto'}}>
       {/* Header Section */}
       <Box sx={{ 
         position: 'relative', 
@@ -96,7 +96,7 @@ const Profile = () => {
           bgcolor: 'primary.main',
           position: 'relative'
         }}>
-          <IconButton sx={{ 
+{/*          <IconButton sx={{ 
             position: 'absolute', 
             bottom: 16, 
             right: 16,
@@ -104,7 +104,7 @@ const Profile = () => {
             '&:hover': { bgcolor: 'background.default' }
           }}>
             <CameraAlt />
-          </IconButton>
+          </IconButton>*/}
         </Box>
         
         {/* Profile Info */}

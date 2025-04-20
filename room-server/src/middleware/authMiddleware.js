@@ -13,12 +13,12 @@ const verifyToken = async (req, res, next) => {
     const decoded = jwt.verify(JWT, JWT_SECRET);
     // console.log(decoded);
     let userId;
-    if (Buffer.isBuffer(decoded.id)) {
-      userId = Buffer.from(decoded.id).toString('hex');
+    if (Buffer.isBuffer(decoded._id)) {
+      userId = Buffer.from(decoded._id).toString('hex');
     } else {
-      userId = decoded.id;
+      userId = decoded._id;
     }
-    req.user={...decoded,id:userId};
+    req.user={...decoded,_id:userId};
     next();
   } catch (err) {
     return res.status(401).json({ success: false, message: "Invalid or expired token" });

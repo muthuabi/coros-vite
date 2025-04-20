@@ -10,24 +10,23 @@ const {
   getAllUsers,
   followUser,
   unfollowUser,
-  getCurrentUser
+  getCurrentUser,
+  editProfile
 } = require('../controllers/userController');
-// Get user by ID
+
+// Static and specific routes first
+router.put("/edit-profile", verifyToken, editProfile);
+router.put("/follow/:id", verifyToken, followUser);
+router.put("/unfollow/:id", verifyToken, unfollowUser);
+
+// Routes with no parameters but unique purpose
+router.get("/me", verifyToken, getCurrentUser); // If you have this
+router.get("/", verifyToken, getAllUsers);
+
+// Dynamic parameterized routes last
 router.get('/:id', verifyToken, getUserById);
-
-// Update user data
 router.put('/:id', verifyToken, updateUser);
-
-// Delete user (soft delete)
 router.delete('/:id', verifyToken, deleteUser);
 
-// Get all users (admin only)
-router.get('/', verifyToken, getAllUsers);
-
-// Follow another user
-router.put('/follow/:id', verifyToken, followUser);
-
-// Unfollow another user
-router.put('/unfollow/:id', verifyToken, unfollowUser);
 
 module.exports = router;

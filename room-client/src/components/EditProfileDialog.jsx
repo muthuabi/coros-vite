@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,94 +10,161 @@ import {
   IconButton,
   Box,
   Typography,
-  Divider,
   Tabs,
   Tab,
   useMediaQuery,
-  useTheme
+  useTheme,
+  CircularProgress
 } from '@mui/material';
 import { CameraAlt, Close, Save } from '@mui/icons-material';
 import { useUIState } from '../contexts/UIStateContext';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import axos from '../axos';
+import { toast } from 'react-toastify';
+
+const SUPPORTED_IMAGE_FORMATS = ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'];
+const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+
+const validationSchema = Yup.object({
+  firstname: Yup.string().required("First Name is required"),
+  lastname: Yup.string().required("Last Name is required"),
+  username: Yup.string()
+    .required("Username is Required")
+    .matches(/^[a-z]/, "Username should start with lowercase alphabet")
+    .min(3, "Username should be at least 3 characters")
+    .max(20, "Username shouldn't exceed 20 characters"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  phone: Yup.string()
+    .matches(/^[6-9]\d{9}$/, "Invalid Indian Phone Number")
+    .nullable(),
+  bio: Yup.string().nullable(),
+  profilePic: Yup.mixed()
+    .nullable()
+    .test(
+      "fileSize",
+      "File too large",
+      (value) => !value || (value && value.size <= MAX_FILE_SIZE)
+    )
+    .test(
+      "fileFormat",
+      "Unsupported Format",
+      (value) => !value || (value && SUPPORTED_IMAGE_FORMATS.includes(value.type))
+    ),
+  socialLinks: Yup.object({
+    twitter: Yup.string().url("Invalid URL").nullable(),
+    facebook: Yup.string().url("Invalid URL").nullable(),
+    instagram: Yup.string().url("Invalid URL").nullable(),
+    linkedin: Yup.string().url("Invalid URL").nullable(),
+    website: Yup.string().url("Invalid URL").nullable()
+  })
+});
 
 const EditProfileDialog = ({ profile, onUpdate }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { uiState, closeUIState } = useUIState();
   const [activeTab, setActiveTab] = useState(0);
-  const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    username: '',
-    email: '',
-    phone: '',
-    bio: '',
-    profilePic: '',
-    socialLinks: {
-      twitter: '',
-      facebook: '',
-      instagram: '',
-      linkedin: '',
-      website: ''
+  const [previewImage, setPreviewImage] = useState('');
+
+  const formik = useFormik({
+    initialValues: {
+      firstname: profile?.firstname || '',
+      lastname: profile?.lastname || '',
+      username: profile?.username || '',
+      email: profile?.email || '',
+      phone: profile?.phone || '',
+      bio: profile?.bio || '',
+      profilePic: null,
+      socialLinks: {
+        twitter: profile?.socialLinks?.twitter || '',
+        facebook: profile?.socialLinks?.facebook || '',
+        instagram: profile?.socialLinks?.instagram || '',
+        linkedin: profile?.socialLinks?.linkedin || '',
+        website: profile?.socialLinks?.website || ''
+      }
+    },
+    validationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      try {
+        const formData = new FormData();
+        
+        // Append all basic fields
+        formData.append('firstname', values.firstname);
+        formData.append('lastname', values.lastname);
+        formData.append('username', values.username);
+        formData.append('email', values.email);
+        formData.append('phone', values.phone || '');
+        formData.append('bio', values.bio || '');
+        
+        // Append social links
+        formData.append('socialLinks[twitter]', values.socialLinks.twitter || '');
+        formData.append('socialLinks[facebook]', values.socialLinks.facebook || '');
+        formData.append('socialLinks[instagram]', values.socialLinks.instagram || '');
+        formData.append('socialLinks[linkedin]', values.socialLinks.linkedin || '');
+        formData.append('socialLinks[website]', values.socialLinks.website || '');
+        
+        // Append file if it exists
+        if (values.profilePic) {
+          formData.append('profilePic', values.profilePic);
+        }
+        
+        const updatePromise = axos.put('/api/user/edit-profile', formData,{
+            headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+        
+        toast.promise(updatePromise, {
+          pending: 'Updating profile...',
+          success: {
+            render({ data }) {
+              onUpdate(data.data.user);
+              closeUIState('editprofileDialog');
+              return 'Profile updated successfully!';
+            }
+          },
+          error: {
+            render({ data }) {
+              return data?.response?.data?.message || 'Failed to update profile';
+            }
+          }
+        });
+        
+      } catch (error) {
+        console.error('Error updating profile:', error);
+      }
     }
   });
 
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        firstname: profile.firstname || '',
-        lastname: profile.lastname || '',
-        username: profile.username || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-        bio: profile.bio || '',
-        profilePic: profile.profilePic || '',
-        socialLinks: {
-          twitter: profile.socialLinks?.twitter || '',
-          facebook: profile.socialLinks?.facebook || '',
-          instagram: profile.socialLinks?.instagram || '',
-          linkedin: profile.socialLinks?.linkedin || '',
-          website: profile.socialLinks?.website || ''
-        }
-      });
-    }
-  }, [profile]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSocialLinkChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      socialLinks: {
-        ...prev.socialLinks,
-        [name]: value
-      }
-    }));
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = (event) => {
+    const file = event.currentTarget.files[0];
     if (file) {
+      formik.setFieldValue('profilePic', file);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, profilePic: reader.result }));
+        setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      // Here you would make an API call to update the profile
-      // const response = await axios.put('/auth/me', formData);
-      onUpdate(formData);
-      closeUIState('editprofileDialog');
-    } catch (error) {
-      console.error('Error updating profile:', error);
+  const getError = (field) => {
+    if (formik.touched[field] && formik.errors[field]) {
+      return formik.errors[field];
     }
+    return null;
+  };
+
+  const getSocialLinkError = (field) => {
+    if (formik.touched.socialLinks?.[field] && formik.errors.socialLinks?.[field]) {
+      return formik.errors.socialLinks[field];
+    }
+    return null;
   };
 
   return (
@@ -126,151 +193,206 @@ const EditProfileDialog = ({ profile, onUpdate }) => {
         </Tabs>
       </DialogTitle>
       
-      <DialogContent dividers>
-        {activeTab === 0 && (
-          <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 3 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Avatar
-                src={formData.profilePic || '/default-avatar.png'}
-                sx={{ width: 120, height: 120, mb: 2 }}
-              />
-              <input
-                accept="image/*"
-                style={{ display: 'none' }}
-                id="profile-pic-upload"
-                type="file"
-                onChange={handleImageUpload}
-              />
-              <label htmlFor="profile-pic-upload">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  startIcon={<CameraAlt />}
-                >
-                  Change Photo
-                </Button>
-              </label>
+      <form onSubmit={formik.handleSubmit}>
+        <DialogContent dividers>
+          {activeTab === 0 && (
+            <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 3 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Avatar
+                  src={previewImage || formik.values.profilePic || profile?.profilePic || '/default-avatar.png'}
+                  sx={{ width: 120, height: 120, mb: 2 }}
+                />
+                <input
+                  accept="image/jpg, image/jpeg, image/png, image/webp"
+                  style={{ display: 'none' }}
+                  id="profile-pic-upload"
+                  type="file"
+                  onChange={handleImageChange}
+                />
+                <label htmlFor="profile-pic-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<CameraAlt />}
+                  >
+                    Change Photo
+                  </Button>
+                </label>
+                {formik.values.profilePic && (
+                  <Typography variant="caption" sx={{ mt: 1 }}>
+                    {formik.values.profilePic.name}
+                  </Typography>
+                )}
+                {getError('profilePic') && (
+                  <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {getError('profilePic')}
+                  </Typography>
+                )}
+              </Box>
+              
+              <Box sx={{ flex: 1, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  label="First Name"
+                  name="firstname"
+                  value={formik.values.firstname}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={!!getError('firstname')}
+                  helperText={getError('firstname')}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Last Name"
+                  name="lastname"
+                  value={formik.values.lastname}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={!!getError('lastname')}
+                  helperText={getError('lastname')}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Username"
+                  name="username"
+                  value={formik.values.username}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={!!getError('username')}
+                  helperText={getError('username')}
+                  fullWidth
+                  margin="normal"
+                  required
+                  disabled
+                />
+                <TextField
+                  label="Email"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={!!getError('email')}
+                  helperText={getError('email')}
+                  fullWidth
+                  margin="normal"
+                  type="email"
+                  required
+                  disabled
+                />
+                <TextField
+                  label="Phone"
+                  name="phone"
+                  value={formik.values.phone}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={!!getError('phone')}
+                  helperText={getError('phone')}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Bio"
+                  name="bio"
+                  value={formik.values.bio}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={!!getError('bio')}
+                  helperText={getError('bio')}
+                  fullWidth
+                  margin="normal"
+                  multiline
+                  rows={3}
+                />
+              </Box>
             </Box>
-            
-            <Box sx={{ flex: 1, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          )}
+          
+          {activeTab === 1 && (
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <TextField
-                label="First Name"
-                name="firstname"
-                value={formData.firstname}
-                onChange={handleChange}
+                label="Twitter URL"
+                name="socialLinks.twitter"
+                value={formik.values.socialLinks.twitter}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!getSocialLinkError('twitter')}
+                helperText={getSocialLinkError('twitter')}
                 fullWidth
                 margin="normal"
+                placeholder="https://twitter.com/username"
               />
               <TextField
-                label="Last Name"
-                name="lastname"
-                value={formData.lastname}
-                onChange={handleChange}
+                label="Facebook URL"
+                name="socialLinks.facebook"
+                value={formik.values.socialLinks.facebook}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!getSocialLinkError('facebook')}
+                helperText={getSocialLinkError('facebook')}
                 fullWidth
                 margin="normal"
+                placeholder="https://facebook.com/username"
               />
               <TextField
-                label="Username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
+                label="Instagram URL"
+                name="socialLinks.instagram"
+                value={formik.values.socialLinks.instagram}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!getSocialLinkError('instagram')}
+                helperText={getSocialLinkError('instagram')}
                 fullWidth
                 margin="normal"
-                inputProps={{ pattern: "^[a-z].*", minLength: 3, maxLength: 20 }}
-                helperText="Must start with lowercase letter, 3-20 characters"
+                placeholder="https://instagram.com/username"
               />
               <TextField
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                label="LinkedIn URL"
+                name="socialLinks.linkedin"
+                value={formik.values.socialLinks.linkedin}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!getSocialLinkError('linkedin')}
+                helperText={getSocialLinkError('linkedin')}
                 fullWidth
                 margin="normal"
-                type="email"
+                placeholder="https://linkedin.com/in/username"
               />
               <TextField
-                label="Phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
+                label="Website URL"
+                name="socialLinks.website"
+                value={formik.values.socialLinks.website}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!getSocialLinkError('website')}
+                helperText={getSocialLinkError('website')}
                 fullWidth
                 margin="normal"
-              />
-              <TextField
-                label="Bio"
-                name="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                multiline
-                rows={3}
+                placeholder="https://yourwebsite.com"
               />
             </Box>
-          </Box>
-        )}
+          )}
+        </DialogContent>
         
-        {activeTab === 1 && (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <TextField
-              label="Twitter URL"
-              name="twitter"
-              value={formData.socialLinks.twitter}
-              onChange={handleSocialLinkChange}
-              fullWidth
-              margin="normal"
-              placeholder="https://twitter.com/username"
-            />
-            <TextField
-              label="Facebook URL"
-              name="facebook"
-              value={formData.socialLinks.facebook}
-              onChange={handleSocialLinkChange}
-              fullWidth
-              margin="normal"
-              placeholder="https://facebook.com/username"
-            />
-            <TextField
-              label="Instagram URL"
-              name="instagram"
-              value={formData.socialLinks.instagram}
-              onChange={handleSocialLinkChange}
-              fullWidth
-              margin="normal"
-              placeholder="https://instagram.com/username"
-            />
-            <TextField
-              label="LinkedIn URL"
-              name="linkedin"
-              value={formData.socialLinks.linkedin}
-              onChange={handleSocialLinkChange}
-              fullWidth
-              margin="normal"
-              placeholder="https://linkedin.com/in/username"
-            />
-            <TextField
-              label="Website URL"
-              name="website"
-              value={formData.socialLinks.website}
-              onChange={handleSocialLinkChange}
-              fullWidth
-              margin="normal"
-              placeholder="https://yourwebsite.com"
-            />
-          </Box>
-        )}
-      </DialogContent>
-      
-      <DialogActions>
-        <Button onClick={() => closeUIState('editprofileDialog')}>Cancel</Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained" 
-          startIcon={<Save />}
-        >
-          Save Changes
-        </Button>
-      </DialogActions>
+        <DialogActions>
+          <Button 
+            onClick={() => closeUIState('editprofileDialog')}
+            disabled={formik.isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit"
+            variant="contained" 
+            startIcon={formik.isSubmitting ? <CircularProgress size={20} /> : <Save />}
+            disabled={formik.isSubmitting || !formik.isValid}
+          >
+            {formik.isSubmitting ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

@@ -1,22 +1,30 @@
 // src/components/ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useUIState } from "../contexts/UIStateContext";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { loggedIn, user } = useAuth();
-  // if (user === null) {
-  //   return (
-  //     <Backdrop
-  //       sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-  //     >
-  //       <CircularProgress />
-  //     </Backdrop>
-  //   );
-  // }
-  if(user==null) return null;
-  if (!loggedIn) return <Navigate to="/auth/login" />;
+import { useLocation } from "react-router-dom";
 
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { loggedIn, user, authLoader } = useAuth();
+  const { uiState } = useUIState();
+  const location = useLocation();  // Get current location
+
+  if (authLoader) {
+    return (
+      <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}>
+        <CircularProgress />
+      </Backdrop>
+    );
+  }
+
+  // If not logged in, redirect to login page with the "from" state
+  if (!loggedIn) {
+    return <Navigate to="/auth/login" state={{ from: location.pathname }} />;
+  }
+
+  // If user doesn't have permission, redirect to forbidden page
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/forbidden" replace />;
   }

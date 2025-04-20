@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Button from "@mui/material/Button";
-// import ButtonGroup from "@mui/material/ButtonGroup";
 import TextField from "@mui/material/TextField";
 import Divider from "@mui/material/Divider";
 import GoogleIcon from "@mui/icons-material/Google";
@@ -11,13 +10,15 @@ import Visibility from "@mui/icons-material/Visibility";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Box from "@mui/material/Box";
-// import MicrosoftIcon from "@mui/icons-material/Microsoft";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo_svg from "../assets/svg/chat-class.svg";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation,Link } from "react-router-dom";
 import { useTogglePage } from "../pages/LoginRegister";
 import axos from "../axos";
+import {useAuth} from "../contexts/AuthContext";
 
 const validationSchema = Yup.object({
   username: Yup.string()
@@ -27,7 +28,21 @@ const validationSchema = Yup.object({
 const Login = () => {
   const navigate = useNavigate();
   const { setIsLoginPage, passwordVisibilities, togglePasswordVisibility } = useTogglePage();
-  const [loadStatus, setLoadStatus] = useState(false);
+  const [loginLoader,setLoginLoader] = useState(true);
+  const [loadStatus,setLoadStatus]=useState(false);
+  const { loggedIn, handleLogin} = useAuth();
+  const location = useLocation();
+
+ useEffect(() => {
+    // If already logged in, redirect to the original page
+    if (loggedIn) {
+      const from = location.state?.from || "/"; // Redirect to the page the user came from
+      navigate(from);
+    } else {
+      setLoginLoader(false);
+    }
+  }, [loggedIn, navigate, location.state?.from]);
+
   const validateUser = (username, password) => {
     return new Promise((resolve, reject) => {
       axos
@@ -67,13 +82,20 @@ const Login = () => {
       validateUserPromise
         .then((response) => {
           // console.log(res);
-          navigate("/");
+          handleLogin();
         })
         .catch((err) => console.log(err))
         .finally(() => setLoadStatus(false));
     },
   });
-
+  if(loginLoader)
+  {
+    return (
+      <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}>
+        <CircularProgress />
+      </Backdrop>
+    );
+  }
   return (
     <Box className="login-inner-box">
       <div className="login-form-box">
