@@ -182,10 +182,12 @@ export default function HomeFeed() {
               <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
               </>):(<Button
+                component={Link}
                 variant="text"
                 color="default"
                 startIcon={<LoginIcon />}
-                onClick={handleLogin}
+                to={"/auth/login"}
+                // onClick={handleLogin}
               >
                 Login
               </Button>)
