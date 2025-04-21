@@ -32,10 +32,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isFetched, setIsFetched] = useState(false);
-
   const [redirectTo, setRedirectTo] = useState(null);  // New state for redirect
-
-  useEffect(() => {
     const fetchUser = async () => {
       try {
         if (isFetched) return; 
@@ -56,6 +53,8 @@ export const AuthProvider = ({ children }) => {
         setAuthLoader(false); 
       }
     };
+
+  useEffect(() => {
 
     if (!location.pathname.includes("auth")) {
       fetchUser();

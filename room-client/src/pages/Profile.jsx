@@ -24,7 +24,7 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {user}=useAuth();
+  const {user,loggedIn}=useAuth();
 
   useEffect(() => {
     // const fetchProfile = async () => {
@@ -45,6 +45,8 @@ const Profile = () => {
 
   const handleProfileUpdate = (updatedProfile) => {
     setProfile(updatedProfile);
+    // fetchUser();
+
   };
 
   if (loading) {

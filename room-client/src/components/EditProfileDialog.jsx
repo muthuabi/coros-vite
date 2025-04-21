@@ -117,7 +117,15 @@ const EditProfileDialog = ({ profile, onUpdate }) => {
             'Content-Type': 'multipart/form-data',
           }
         });
-        
+        // updatePromise
+        // .then((data)=>{
+        //   onUpdate(dat?.data?.user);
+        //   closeUIState('editprofileDialog');
+        // })
+        // .catch((err)=>{
+        //   throw new Error(err);
+        // })
+
         toast.promise(updatePromise, {
           pending: 'Updating profile...',
           success: {

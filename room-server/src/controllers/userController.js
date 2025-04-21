@@ -1,59 +1,20 @@
 const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
+const { createUploader, deleteFile, getRelativePath } = require('../utils/fileUploadUtils');
 const User = require('../models/User');
-
-// Configure Multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const userId = req.user._id; // Assuming you have user in req from auth middleware
-    const userDir = path.join(__dirname, '../files/users', userId.toString(), 'profile');
-    
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir, { recursive: true });
-    }
-    
-    cb(null, userDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, 'profile-' + uniqueSuffix + ext);
-  }
+const getImageURL=require("../utils/getImageURL");
+// Create profile picture upload middleware
+const uploadProfilePic = createUploader({
+  subfolder: 'users',
+  fieldName: 'profilePic',
+  fileType: 'image',
+  maxSize: 5 * 1024 * 1024 // 5MB for profile pics
 });
 
-// File filter for image validation
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, JPG, and WEBP are allowed.'), false);
-  }
-};
-
-// Initialize Multer with limits
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 3 * 1024 * 1024 // 3MB limit
-  }
-}).single('profilePic');
-
-// Edit user profile controller
 const editProfile = async (req, res) => {
   try {
-    // Handle file upload first
-
-    upload(req, res, async function (err) {
-      if (err instanceof multer.MulterError) {
-        return res.status(400).json({ 
-          success: false,
-          message: err.message 
-        });
-      } else if (err) {
+    // Handle file upload
+    uploadProfilePic(req, res, async function (err) {
+      if (err) {
         return res.status(400).json({ 
           success: false,
           message: err.message 
@@ -71,7 +32,7 @@ const editProfile = async (req, res) => {
         socialLinks
       } = req.body;
 
-      // Parse socialLinks if it's a string (from form-data)
+      // Parse socialLinks if needed
       let parsedSocialLinks = {};
       try {
         parsedSocialLinks = typeof socialLinks === 'string' ? JSON.parse(socialLinks) : socialLinks || {};
@@ -96,19 +57,15 @@ const editProfile = async (req, res) => {
         }
       };
 
-      // If file was uploaded, add profilePic to update data
+      // If file was uploaded, handle it
       if (req.file) {
-        // Construct relative path to store in DB
-        const relativePath = path.join('users', userId.toString(), 'profile', req.file.filename);
-        updateData.profilePic = relativePath;
+        // Get relative path for DB storage
+        updateData.profilePic = getRelativePath(req.file.path);
         
-        // If user had previous profile picture, delete it
+        // Delete old profile picture if exists
         const user = await User.findById(userId);
         if (user.profilePic) {
-          const oldPath = path.join(__dirname, '../files', user.profilePic);
-          if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-          }
+          deleteFile(user.profilePic);
         }
       }
 
@@ -157,7 +114,7 @@ const getUserById = async (req, res) => {
     const { firstname, lastname, username, bio, profilePic } = req.body;
     
     try {
-      console.log("incoming");
+      // console.log("incoming");
       const updatedUser = await User.findByIdAndUpdate(req.params.id, {
         firstname, lastname, username, bio, profilePic, lastActive: Date.now()
       }, { new: true });
@@ -243,11 +200,11 @@ const getUserById = async (req, res) => {
       // Use the current user's ID from the JWT token (req.user._id)
       // console.log("In User:",req.user);
       const currentUser = await User.findById(req.user._id).populate('followers following');
-      
+      currentUser.profilePic=getImageURL(currentUser.profilePic);
       if (!currentUser) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-      console.log(currentUser);
+      // console.log(currentUser);
       res.status(200).json({ success: true, data: currentUser });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error in Curr', error: err.message });

@@ -158,7 +158,7 @@ export default function HomeFeed() {
               color="inherit"
             >
               <Avatar
-                src="https://i.pravatar.cc/150?img=33"
+                src={user.profilePic || '/default-avatar.png'}
                 alt="User Avatar"
               />
             </IconButton>
@@ -232,6 +232,7 @@ export default function HomeFeed() {
           sx={{
             margin: "auto",
             padding: { xs: 2, sm: 3 },
+            width:"100%"
           }}
         >
           <Toolbar />
