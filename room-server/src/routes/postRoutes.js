@@ -59,5 +59,8 @@ router.get('/', postController.viewPosts);
 router.delete('/:id', verifyToken, postController.deletePost);
 router.post('/:id/vote', verifyToken, postController.votePost);
 router.post('/:id/accept-answer', verifyToken, postController.acceptAnswer);
+// Add these routes
+router.post('/:id/like', verifyToken, postController.likePost);
+router.post('/:id/view', postController.trackView);
 
 module.exports = router;

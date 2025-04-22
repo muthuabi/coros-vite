@@ -20,6 +20,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import CssBaseline from "@mui/material/CssBaseline";
 import { UIStateProvider } from "./contexts/UIStateContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SearchProvider } from "./contexts/SearchContext";
 import Room from "./pages/Room";
 import HomeFeed from "./components/HomeFeed";
 import GlobalLoader from "./components/GlobalLoader";
@@ -32,6 +33,7 @@ function App() {
       <Router>
         <AuthProvider>
           <ThemeProvider>
+          <SearchProvider>
             <CssBaseline />
             {/* <Profile /> */}
             <div className="container-fluid main-container">
@@ -92,6 +94,7 @@ function App() {
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             </div>
+            </SearchProvider>
           </ThemeProvider>
         </AuthProvider>
       </Router>

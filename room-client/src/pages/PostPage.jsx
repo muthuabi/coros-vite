@@ -9,12 +9,13 @@ import {
 import { 
   Add, Edit, Delete, Close, MoreVert, Check, ArrowUpward,
   ArrowDownward, Bookmark, Comment, Share, Image as ImageIcon,
-  VideoLibrary, Poll
+  VideoLibrary, Poll,ThumbUp
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useUIState } from '../contexts/UIStateContext';
 import MarkupEditor from '../components/posts/MarkupEditor';
 import axos from '../axos';
+import { useSearch } from '../contexts/SearchContext';
 
 const PostPage = () => {
   const theme = useTheme();
@@ -40,7 +41,20 @@ const PostPage = () => {
   const [tagInput, setTagInput] = useState('');
   const [pollOptionInput, setPollOptionInput] = useState('');
   const [files, setFiles] = useState([]);
-
+  const {searchQuery}=useSearch();
+  // Filter posts based on search query
+   const filteredPosts = posts.filter(post => {
+    if (!searchQuery) return true;
+    
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      post.content.toLowerCase().includes(searchLower) ||
+      (post.questionDetails?.title || '').toLowerCase().includes(searchLower) ||
+      (post.questionDetails?.body || '').toLowerCase().includes(searchLower) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchLower)) ||
+      post.authorName.toLowerCase().includes(searchLower) || post.content.toLowerCase().includes(searchLower)
+    );
+  });
   // Fetch posts
   useEffect(() => {
     const fetchPosts = async () => {
@@ -58,6 +72,9 @@ const PostPage = () => {
     fetchPosts();
   }, []);
 
+  // useEffect(()=>{
+ 
+  // },[searchQuery])
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -271,6 +288,46 @@ const handleSubmit = async () => {
     setAnchorEl(null);
     // setEditingPost(null);
   };
+
+  // Replace the vote handling with like handling
+const handleLike = async (postId) => {
+  try {
+    const res = await axos.post(`/api/posts/${postId}/like`);
+    setPosts(posts.map(p => p._id === postId ? res.data.data : p));
+  } catch (error) {
+    console.error('Error liking post:', error);
+  }
+};
+
+// Update the view tracking
+// Add this useEffect inside your PostPage component
+useEffect(() => {
+  const trackView = async (postId) => {
+    try {
+      await axos.post(`/api/posts/${postId}/view`);
+    } catch (error) {
+      console.error('Error tracking view:', error);
+    }
+  };
+
+  // Track view when post becomes visible
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        trackView(entry.target.dataset.postId);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  // Observe all posts
+  document.querySelectorAll('[data-post-id]').forEach(el => {
+    observer.observe(el);
+  });
+
+  return () => observer.disconnect();
+}, [posts]);
+
 
   // Handle vote
   const handleVote = async (postId, voteType) => {
@@ -580,11 +637,11 @@ const handleSubmit = async () => {
         )}
       </Box>
 
-      <Paper sx={{ mb: 4 }}>
+      <Paper sx={{ mb: 0 }}>
         <Tabs 
           value={activeTab} 
           onChange={(e, newValue) => setActiveTab(newValue)}
-          variant="fullWidth"
+          
         >
           <Tab label="All Posts" />
           <Tab label="My Posts" disabled={!loggedIn} />
@@ -597,9 +654,9 @@ const handleSubmit = async () => {
         </Box>
       ) : (
         <Box sx={{ display: 'grid', gap: 3 }}>
-          {(activeTab === 0 ? posts : posts.filter(p => p.authorId._id === user?._id))
+          {(activeTab === 0 ? filteredPosts : filteredPosts.filter(p => p.authorId._id === user?._id))
           .map(post => (
-            <Card key={post._id} elevation={3}>
+            <Card key={post._id} elevation={3} data-post-id={post._id}>
               <CardHeader
                 avatar={<Avatar src={post.authorId.profilePic} alt={post.authorName} />}
                 action={
@@ -616,7 +673,7 @@ const handleSubmit = async () => {
                 {renderPostContent(post)}
               </CardContent>
               <Divider />
-              <CardActions sx={{ justifyContent: 'space-between' }}>
+              {/*<CardActions sx={{ justifyContent: 'space-between' }}>
                 <Box>
                   <IconButton onClick={() => handleVote(post._id, 'upvote')}>
                     <ArrowUpward color={post.votes?.upvotes?.includes(user?._id) ? 'primary' : 'inherit'} />
@@ -640,7 +697,34 @@ const handleSubmit = async () => {
                     <Share />
                   </IconButton>
                 </Box>
-              </CardActions>
+              </CardActions>*/}
+              <CardActions sx={{ justifyContent: 'space-between' }}>
+  <Box>
+    <IconButton onClick={() => handleLike(post._id)}>
+      <ThumbUp 
+        color={post.likes?.some(like => like.userId === user?._id) ? 'primary' : 'inherit'} 
+      />
+      <Typography sx={{ ml: 1 }}>
+        {post.likes?.length || 0}
+      </Typography>
+    </IconButton>
+    <Typography sx={{ mx: 1 }}>
+      {post.views || 0} views
+    </Typography>
+  </Box>
+  <Box>
+    <IconButton>
+      <Comment />
+      <Typography sx={{ ml: 1 }}>{post.commentsCount || 0}</Typography>
+    </IconButton>
+    <IconButton>
+      <Bookmark />
+    </IconButton>
+    <IconButton>
+      <Share />
+    </IconButton>
+  </Box>
+</CardActions>
             </Card>
           ))}
         </Box>

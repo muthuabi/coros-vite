@@ -1,6 +1,6 @@
 import PostCard from "../components/PostCard";
 import React,{useState,useEffect} from 'react';
-const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
+const posts = Array.from({ length: 5 }).map((_, idx) => ({
   id: idx,
   username: `User${idx + 1}`,
   avatar: `https://i.pravatar.cc/150?img=${idx + 10}`,
@@ -10,9 +10,10 @@ const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
   likes: Math.floor(Math.random() * 100),
   comments: Math.floor(Math.random() * 20),
 }));
+// const posts=[];
 const HomeFeed=()=>{
    return (<>
-         {dummyPosts.map((post) => (
+         {posts.map((post) => (
             <PostCard post={post} key={post.id} />
           ))}
    </>);

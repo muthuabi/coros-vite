@@ -41,7 +41,8 @@ import PostCard from "../components/PostCard";
 import {useThemeContext} from '../contexts/ThemeContext';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from "../contexts/AuthContext";
-import Button from '@mui/material/Button'
+import Button from '@mui/material/Button';
+import {useSearch} from '../contexts/SearchContext';
 const drawerWidth = 240;
 const Main = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -65,7 +66,7 @@ const AppBarStyled = styled(AppBar)(({ theme }) => ({
   boxShadow: "none",
   borderBottom: `1px solid ${theme.palette.divider}`,
 }));
-export default function HomeFeed() {
+export default function Home() {
   const navigate = useNavigate();
   const theme=useTheme();
   const {loggedIn,user,roleBasedRoutes,handleLogin,logout}=useAuth();
@@ -74,6 +75,10 @@ export default function HomeFeed() {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { searchQuery, setSearchQuery } = useSearch();
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -123,6 +128,8 @@ export default function HomeFeed() {
                 size="small"
                 placeholder="Search..."
                 fullWidth
+                value={searchQuery}
+                onChange={handleSearchChange}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -208,6 +215,8 @@ export default function HomeFeed() {
                 size="small"
                 placeholder="Search..."
                 fullWidth
+                value={searchQuery}
+                onChange={handleSearchChange}
                 slotProps={{
                   input: {
                     startAdornment: (

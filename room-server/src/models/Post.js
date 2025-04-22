@@ -121,13 +121,16 @@ const PostSchema = new mongoose.Schema({
   },
   
   // Engagement Fields (enhanced)
-  likes: [{
-    userId: ObjectId,
-    likedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
+ likes: [{
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  likedAt: {
+    type: Date,
+    default: Date.now
+  }
+}],
   commentsCount: {
     type: Number,
     default: 0

@@ -10,11 +10,14 @@ const roleRoutes = {
   visitor: [
     { label: "Home", route: "/", icon: "HomeIcon" },
     { label: "Login", route: "/auth/login", icon: "AccountCircleIcon" },
+    { label: "Posts", route: "/post", icon: "CommunityIcon" }
   ],
   user: [
     { label: "Home", route: "/", icon: "HomeIcon" },
     { label: "Rooms", route: "/room", icon: "GroupIcon" },
-    { label: "Profile", route: "/profile", icon: "AccountCircleIcon" },
+    { label: "Posts", route: "/post", icon: "CommunityIcon" },
+    { label: "Profile", route: "/profile", icon: "AccountCircleIcon" }
+
   ],
   admin: [
     { label: "Home", route: "/", icon: "HomeIcon" },
