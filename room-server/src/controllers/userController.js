@@ -5,6 +5,7 @@ const getImageURL=require("../utils/getImageURL");
 // Create profile picture upload middleware
 const uploadProfilePic = createUploader({
   subfolder: 'users',
+  idSubFolder:'profile',
   fieldName: 'profilePic',
   fileType: 'image',
   maxSize: 5 * 1024 * 1024 // 5MB for profile pics

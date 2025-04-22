@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Card, CardHeader, CardContent, CardMedia, 
-  Typography, IconButton, CardActions, Avatar 
+  Typography, IconButton, CardActions, Avatar,Box
 } from '@mui/material';
 import { 
   MoreVert as MoreVertIcon,

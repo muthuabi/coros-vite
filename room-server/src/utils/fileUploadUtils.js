@@ -11,14 +11,14 @@ const supportedFileTypes = {
 };
 
 // Create multer storage configuration
-const createStorage = (basePath, subfolder) => {
+const createStorage = (basePath, subfolder,idSubFolder) => {
   return multer.diskStorage({
     destination: function (req, file, cb) {
       let destinationPath = path.join(basePath, subfolder || '');
       
       // For user-specific folders
       if (req.user?._id) {
-        destinationPath = path.join(destinationPath, req.user._id.toString(),"profile");
+        destinationPath = path.join(destinationPath, req.user._id.toString(),idSubFolder);
       }
       
       // Create directory if it doesn't exist
@@ -52,20 +52,22 @@ const createUploader = (options = {}) => {
   const {
     basePath = path.join(__dirname, '../files'),
     subfolder = '',
+    idSubFolder = '',
     fieldName = 'file',
-    fileType = 'image',
-    maxSize = 3 * 1024 * 1024 // 3MB default
+    fileTypes = ['image', 'video', 'document'], // Default to all types
+    maxSize = 10 * 1024 * 1024 // 10MB
   } = options;
-  const allowedTypes = supportedFileTypes[fileType] || supportedFileTypes.image;
-  
+
+  // Combine allowed MIME types
+  const allowedTypes = fileTypes.flatMap(type => supportedFileTypes[type] || []);
+
   return multer({
-    storage: createStorage(basePath, subfolder),
+    storage: createStorage(basePath, subfolder, idSubFolder),
     fileFilter: createFileFilter(allowedTypes),
-    limits: {
-      fileSize: maxSize
-    }
+    limits: { fileSize: maxSize }
   }).single(fieldName);
 };
+
 
 // Delete file utility
 const deleteFile = (filePath) => {
@@ -78,9 +80,12 @@ const deleteFile = (filePath) => {
 };
 
 // Get relative path (for storing in DB)
+// Get relative path (for storing in DB)
 const getRelativePath = (fullPath) => {
   const basePath = path.join(__dirname, '../files');
-  return path.relative(basePath, fullPath);
+  const relativePath = path.relative(basePath, fullPath);
+  // Normalize path separators to forward slashes
+  return relativePath.split(path.sep).join('/');
 };
 
 module.exports = {

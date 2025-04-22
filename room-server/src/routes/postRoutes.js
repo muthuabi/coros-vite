@@ -2,36 +2,62 @@ const express = require('express');
 const router = express.Router();
 const postController = require('../controllers/postController');
 const fileUploadUtil = require('../utils/fileUploadUtils');
-const {verifyToken} = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authMiddleware');
 
-// Configure upload middleware
-const postUpload = fileUploadUtil.createUploader({
-  subfolder: 'posts',
-  fieldName: 'media',
-  fileType: 'image', // Default, can be overridden
-  maxSize: 5 * 1024 * 1024 // 5MB
-});
+// Dynamic upload middleware
+const dynamicUpload = (req, res, next) => {
+  const postType = req.body.type; // 'image', 'video', 'document'
+
+  // Map post types to allowed file categories
+  const typeMap = {
+    image: ['image'],
+    video: ['video'],
+    document: ['document'],
+    generic: ['image', 'video', 'document'] // For mixed types
+  };
+
+  const fileTypes = typeMap[postType] || ['image']; // Default to image
+
+  const uploader = fileUploadUtil.createUploader({
+    subfolder: 'posts',
+    idSubFolder: 'media',
+    fieldName: 'media',
+    fileTypes,
+    maxSize: 10 * 1024 * 1024 // 10MB
+  });
+
+  uploader(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ 
+        success: false, 
+        error: err.message 
+      });
+    }
+    next();
+  });
+};
 
 // Create a new post
 router.post(
   '/', 
-  verifyToken, // Max 5 files
+  verifyToken,
+  dynamicUpload,
   postController.createPost
 );
 
-// Get a single post
+// Update a post
+router.put(
+  '/:id',
+  verifyToken,
+  dynamicUpload,
+  postController.updatePost
+);
+
+// Other routes remain unchanged
 router.get('/:id', postController.viewPost);
-
-// Get multiple posts with filters
 router.get('/', postController.viewPosts);
-
-// Delete a post
 router.delete('/:id', verifyToken, postController.deletePost);
-
-// Vote on a post
 router.post('/:id/vote', verifyToken, postController.votePost);
-
-// Accept an answer (for Q&A)
 router.post('/:id/accept-answer', verifyToken, postController.acceptAnswer);
 
 module.exports = router;
