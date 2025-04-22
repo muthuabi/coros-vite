@@ -6,10 +6,11 @@ export const UIStateProvider = ({ children }) => {
         sidebar:false,
         navbar:false,
         loader:false,
-        modal:false,
+        postModal:false,
         editprofileDialog:false,
         dialog:false,
         globalLoader:false,
+        //add whatever keys as you like
     });
     const toggleUIState=(key)=>{
         setUIState((prevState) => ({ ...prevState, [key]: !prevState[key] }));

@@ -15,7 +15,7 @@ import "./styles/App.css";
 import ForgotPasswordDialog from "./components/ForgotPassword";
 import DiscussionRoom from "./components/DiscussionRoom";
 import TryMUI from "./components/TryMUI";
-import MarkupEditor from "./components/MarkupEditor";
+import MarkupEditor from "./components/posts/MarkupEditor";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import CssBaseline from "@mui/material/CssBaseline";
 import { UIStateProvider } from "./contexts/UIStateContext";
@@ -25,6 +25,7 @@ import HomeFeed from "./components/HomeFeed";
 import GlobalLoader from "./components/GlobalLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import PostPage from "./pages/PostPage";
 function App() {
   return (
     <UIStateProvider>
@@ -41,11 +42,16 @@ function App() {
                   path="/"
                   element={ <Home />}>
                   <Route index element={<HomeFeed />} />
-                  <Route path="room" element={<ProtectedRoute allowedRoles={["user"]}><DiscussionRoom /></ProtectedRoute>} />
+                  <Route path="room">
+                    <Route index element={<ProtectedRoute allowedRoles={["user"]}><DiscussionRoom /></ProtectedRoute>} />
+                  </Route>
+                  <Route path="post">
+                    <Route index element={<ProtectedRoute allowedRoles={["user"]}><PostPage/></ProtectedRoute>} />
+                  </Route>
                   <Route path="profile" element={<ProtectedRoute allowedRoles={["user"]}><Profile /></ProtectedRoute>} />
                   <Route path="forbidden" element={<AccessForbidden />} />
                 </Route>
-
+ 
                 <Route path="auth">
                   <Route index element={<Navigate to="sign-in" />} />
                   <Route
