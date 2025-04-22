@@ -7,19 +7,19 @@ const app = express();
 denv.config();
 
 // Development: Show directory listing
-// if (process.env.NODE_ENV !== 'production') {
-//   app.use('/files', 
-//     express.static(path.join(__dirname, 'files')),
-//     serveIndex(path.join(__dirname, 'files'), {
-//       'icons': true,
-//       'view': 'details'  // Shows file details like size and modified date
-//     })
-//   );
-// } 
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/files', 
+    express.static(path.join(__dirname, 'files')),
+    serveIndex(path.join(__dirname, 'files'), {
+      'icons': true,
+      'view': 'details'  // Shows file details like size and modified date
+    })
+  );
+} 
 // Production: Only serve static files without directory listing
-// else {
+else {
   app.use('/files', express.static(path.join(__dirname, 'files')));
-// }
+}
 
 // Error handling for missing files
 app.use('/files', (req, res, next) => {
