@@ -43,7 +43,7 @@ function App() {
                 <Route
                   path="/"
                   element={ <Home />}>
-                  <Route index element={<HomeFeed />} />
+                  <Route index element={<PostPage />} />
                   <Route path="room">
                     <Route index element={<ProtectedRoute allowedRoles={["user"]}><DiscussionRoom /></ProtectedRoute>} />
                   </Route>

@@ -20,7 +20,7 @@ import { useSearch } from '../contexts/SearchContext';
 const PostPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { user, loggedIn } = useAuth();
+  const { user,setIsFetched, loggedIn } = useAuth();
   const { uiState, closeUIState, openUIState } = useUIState();
   const [activeTab, setActiveTab] = useState(0);
   const [posts, setPosts] = useState([]);
@@ -56,20 +56,23 @@ const PostPage = () => {
     );
   });
   // Fetch posts
-  useEffect(() => {
+
     const fetchPosts = async () => {
       setLoading(true);
       try {
         const res = await axos.get('/api/posts');
         setPosts(res.data?.data || []);
+        //setIsFetched(false);
       } catch (error) {
         console.error('Error fetching posts:', error);
       } finally {
         setLoading(false);
-      }
+      } 
+      
     };
-
+useEffect(()=>{
     fetchPosts();
+    
   }, []);
 
   // useEffect(()=>{
@@ -249,7 +252,8 @@ const handleSubmit = async () => {
         }
       });
       // Add new post to beginning of list
-      setPosts([res.data.data, ...posts]);
+      //setPosts([res.data.data, ...posts]);
+      fetchPosts();
     }
     
     // Close modal and reset form
@@ -622,7 +626,7 @@ useEffect(() => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+      {loggedIn && <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
         <Typography variant="h4" component="h1">
           {activeTab === 0 ? 'All Posts' : 'My Posts'}
         </Typography>
@@ -636,16 +640,18 @@ useEffect(() => {
           </Button>
         )}
       </Box>
-
+      }
       <Paper sx={{ mb: 0 }}>
-        <Tabs 
+       {loggedIn &&  <Tabs 
           value={activeTab} 
           onChange={(e, newValue) => setActiveTab(newValue)}
           
         >
+      
           <Tab label="All Posts" />
           <Tab label="My Posts" disabled={!loggedIn} />
         </Tabs>
+      }
       </Paper>
 
       {loading && !posts.length ? (

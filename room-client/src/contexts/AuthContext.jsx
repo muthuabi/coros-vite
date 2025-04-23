@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const [redirectTo, setRedirectTo] = useState(null);  // New state for redirect
     const fetchUser = async () => {
       try {
-        if (isFetched) return; 
+       if (isFetched) return; 
 
         setAuthLoader(true); 
         const res = await axos.get("/api/auth/me");
@@ -68,7 +68,8 @@ export const AuthProvider = ({ children }) => {
       const from = location.state?.from || "/";  // If no referrer, go to home
       setRedirectTo(from);
     }
-  }, [location.pathname, isFetched]);
+   
+  }, [location.pathname,isFetched]);
 
   const handleLogin = () => {
     if (redirectTo) {
@@ -93,7 +94,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, roleBasedRoutes, loggedIn, handleLogin, logout, authLoader,setAuthLoader }}>
+    <AuthContext.Provider value={{isFetched, setIsFetched,user, roleBasedRoutes, loggedIn, handleLogin, logout, authLoader,setAuthLoader }}>
       {children}
     </AuthContext.Provider>
   );
