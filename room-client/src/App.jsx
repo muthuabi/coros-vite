@@ -27,6 +27,7 @@ import GlobalLoader from "./components/GlobalLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 import PostPage from "./pages/PostPage";
+import RoomPage from "./pages/RoomPage";
 function App() {
   return (
     <UIStateProvider>
@@ -45,7 +46,7 @@ function App() {
                   element={ <Home />}>
                   <Route index element={<PostPage />} />
                   <Route path="room">
-                    <Route index element={<ProtectedRoute allowedRoles={["user"]}><DiscussionRoom /></ProtectedRoute>} />
+                    <Route index element={<ProtectedRoute allowedRoles={["user"]}><RoomPage/></ProtectedRoute>} />
                   </Route>
                   <Route path="post">
                     <Route index element={<ProtectedRoute allowedRoles={["user"]}><PostPage/></ProtectedRoute>} />
