@@ -18,8 +18,8 @@ const ForgotPasswordDialog = () => {
   const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
-    navigate("/auth/sign-in"); 
-    // navigate(-1);
+    // navigate("/auth/sign-in"); 
+    navigate(-1);
   };
 //   const sendForgotMail=(email)=>{
 //     return new Promise((resolve,reject)=>{
