@@ -641,7 +641,7 @@ useEffect(() => {
         )}
       </Box>
       }
-      <Paper sx={{ mb: 0 }}>
+      <Paper sx={{ mb: 1 }}>
        {loggedIn &&  <Tabs 
           value={activeTab} 
           onChange={(e, newValue) => setActiveTab(newValue)}
