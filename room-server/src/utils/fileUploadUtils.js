@@ -4,7 +4,7 @@ const multer = require('multer');
 
 // Supported file types
 const supportedFileTypes = {
-  image: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'],
+  image: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif','video/mp4'],
   document: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   video: ['video/mp4', 'video/quicktime'],
   audio: ['audio/mpeg', 'audio/wav']
