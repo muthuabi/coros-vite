@@ -272,7 +272,8 @@ const EditProfileDialog = ({ profile, onUpdate }) => {
                   </Button>
                 </label>
                 {formik.values.profilePic && (
-                  <Typography variant="caption" sx={{ mt: 1 }}>
+                  <Typography title={formik.values.profilePic.name || "Current profile image"} variant="caption"  sx={{ mt: 1,maxWidth: '150px',overflow: 'hidden',
+                    whiteSpace: 'nowrap',textOverflow:'ellipsis' }}>
                     {formik.values.profilePic.name || "Current profile image"}
                   </Typography>
                 )}

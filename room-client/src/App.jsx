@@ -28,6 +28,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 import PostPage from "./pages/PostPage";
 import RoomPage from "./pages/RoomPage";
+import PostControl from "./pages/PostControl";
+import UserControl from "./pages/UserControl";
+import RoomControl from "./pages/RoomControl";
 function App() {
   return (
     <UIStateProvider>
@@ -70,7 +73,11 @@ function App() {
                     element={<ForgotPasswordDialog />}
                   />
                 </Route>
-
+                <Route  path="admin" element={<Home/>}>
+                    <Route path="posts" element={<PostControl/>}/>
+                    <Route path="users" element={<UserControl/>} />
+                    <Route path="rooms" element={<RoomControl/>}/>
+                </Route>
                 <Route
                   path="admin/users"
                   element={
