@@ -39,7 +39,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { useNavigate,Link,Outlet } from "react-router-dom";
 import PostCard from "../../components/post/PostCard";
 import {useThemeContext} from '../../contexts/ThemeContext';
-import Sidebar from '../../components/user/Sidebar';
+import Sidebar from '../../components/admin/Sidebar';
 import { useAuth } from "../../contexts/AuthContext";
 import Button from '@mui/material/Button';
 import {useSearch} from '../../contexts/SearchContext';

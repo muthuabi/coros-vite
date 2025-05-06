@@ -6,7 +6,7 @@ import {
   Tooltip, CircularProgress, Snackbar, Alert, Pagination, Switch, FormControlLabel
 } from '@mui/material';
 import { Edit, Delete, Visibility, Add, Check, Close, People, LockOpen, Lock } from '@mui/icons-material';
-import axos from '../axos';
+import axos from '../../axos';
 
 const RoomControl = () => {
   const [rooms, setRooms] = useState([]);

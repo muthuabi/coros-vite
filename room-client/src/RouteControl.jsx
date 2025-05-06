@@ -14,6 +14,9 @@ import AccessForbidden from "./components/util/AccessForbidden";
 import PostPage from "./pages/user/PostPage";
 import UserProfile from "./pages/user/Profile";
 import AdminProfile from "./pages/admin/Profile";
+import PostControl from "./pages/admin/PostControl";
+import UserControl from "./pages/admin/UserControl";
+import RoomControl from "./pages/admin/RoomControl";
 const RouteControl = () => {
   return (
     <Routes>
@@ -23,7 +26,11 @@ const RouteControl = () => {
           <Route path="profile" element={<UserProfile/>} />
       </Route>
       <Route path="admin" element={<AdminHome />} >
-
+          <Route index element={<UserControl/>}/>
+          <Route path="users" element={<UserControl/>}/>
+          <Route path="posts" element={<PostControl/>}/>
+          <Route path="rooms" element={<RoomControl/>}/>
+          <Route path="profile" element={<AdminProfile/>}/>
       </Route>
       <Route path="auth">
         <Route index element={<Navigate to="login" />} />

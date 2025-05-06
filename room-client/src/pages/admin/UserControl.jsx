@@ -6,7 +6,7 @@ import {
   Tooltip, CircularProgress, Snackbar, Alert, Pagination, Switch, FormControlLabel
 } from '@mui/material';
 import { Edit, Delete, Visibility, Add, Check, Close, Person, AdminPanelSettings } from '@mui/icons-material';
-import axos from '../axos';
+import axos from '../../axos';
 
 const UserControl = () => {
   const [users, setUsers] = useState([]);

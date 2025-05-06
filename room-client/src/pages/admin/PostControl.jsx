@@ -6,7 +6,7 @@ import {
   Tooltip, CircularProgress, Snackbar, Alert, Pagination
 } from '@mui/material';
 import { Edit, Delete, Visibility, Add, Check, Close } from '@mui/icons-material';
-import axos from '../axos';
+import axos from '../../axos';
 
 const PostControl = () => {
   const [posts, setPosts] = useState([]);
