@@ -17,6 +17,7 @@ import AdminProfile from "./pages/admin/Profile";
 import PostControl from "./pages/admin/PostControl";
 import UserControl from "./pages/admin/UserControl";
 import RoomControl from "./pages/admin/RoomControl";
+import ADashBoard from "./pages/admin/ADashBoard";
 const RouteControl = () => {
   return (
     <Routes>
@@ -26,7 +27,7 @@ const RouteControl = () => {
           <Route path="profile" element={<UserProfile/>} />
       </Route>
       <Route path="admin" element={<AdminHome />} >
-          <Route index element={<UserControl/>}/>
+          <Route index element={<ADashBoard/>}/>
           <Route path="users" element={<UserControl/>}/>
           <Route path="posts" element={<PostControl/>}/>
           <Route path="rooms" element={<RoomControl/>}/>

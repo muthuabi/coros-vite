@@ -1,224 +1,272 @@
-const path = require('path');
+const mongoose = require('mongoose');
 const { createUploader, deleteFile, getRelativePath } = require('../utils/fileUploadUtils');
-const User = require('../models/User');
-const getImageURL=require("../utils/getImageURL");
-// Create profile picture upload middleware
-const uploadProfilePic = createUploader({
-  subfolder: 'users',
-  idSubFolder:'profile',
-  fieldName: 'profilePic',
-  fileType: 'image',
-  maxSize: 5 * 1024 * 1024 // 5MB for profile pics
-});
+const getImageURL = require("../utils/getImageURL");
 
-const editProfile = async (req, res) => {
-  try {
-    // Handle file upload
-    uploadProfilePic(req, res, async function (err) {
-      if (err) {
-        return res.status(400).json({ 
-          success: false,
-          message: err.message 
-        });
-      }
-
-      const userId = req.user._id;
-      const { 
-        firstname, 
-        lastname, 
-        username, 
-        email, 
-        phone, 
-        bio,
-        socialLinks
-      } = req.body;
-
-      // Parse socialLinks if needed
-      let parsedSocialLinks = {};
-      try {
-        parsedSocialLinks = typeof socialLinks === 'string' ? JSON.parse(socialLinks) : socialLinks || {};
-      } catch (e) {
-        parsedSocialLinks = {};
-      }
-
-      // Prepare update data
-      const updateData = {
-        firstname,
-        lastname,
-        username,
-        email,
-        phone: phone || null,
-        bio: bio || null,
-        socialLinks: {
-          twitter: parsedSocialLinks.twitter || null,
-          facebook: parsedSocialLinks.facebook || null,
-          instagram: parsedSocialLinks.instagram || null,
-          linkedin: parsedSocialLinks.linkedin || null,
-          website: parsedSocialLinks.website || null
-        }
-      };
-
-      // If file was uploaded, handle it
-      if (req.file) {
-        // Get relative path for DB storage
-        updateData.profilePic = getRelativePath(req.file.path);
-        
-        // Delete old profile picture if exists
-        const user = await User.findById(userId);
-        if (user.profilePic) {
-          deleteFile(user.profilePic);
-        }
-      }
-
-      // Update user in database
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { $set: updateData },
-        { new: true, runValidators: true }
-      ).select('-password -__v');
-
-      if (!updatedUser) {
-        return res.status(404).json({ 
-          success: false,
-          message: 'User not found' 
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'Profile updated successfully',
-        user: updatedUser
-      });
+class UserController {
+  constructor() {
+    this.User = mongoose.model('User');
+    this.uploadProfilePic = createUploader({
+      subfolder: 'users',
+      idSubFolder: 'profile',
+      fieldName: 'profilePic',
+      fileType: 'image',
+      maxSize: 5 * 1024 * 1024 // 5MB for profile pics
     });
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Internal server error',
-      error: error.message 
-    });
+    this.getAllUsers = this.getAllUsers.bind(this);
+    this.getCurrentUser = this.getCurrentUser.bind(this);
+    this.getUserById = this.getUserById.bind(this);
+    this.editProfile = this.editProfile.bind(this);
+    this.updateUser = this.updateUser.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
+    this.followUser = this.followUser.bind(this);
+    this.unfollowUser = this.unfollowUser.bind(this);
+    this._sendResponse = this._sendResponse.bind(this);
   }
-};
 
-const getUserById = async (req, res) => {
-    try {
-      const user = await User.findById(req.params.id).populate('followers following roomsJoined');
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+  // Helper method for consistent responses
+  _sendResponse(res, status, success, message, data = null, error = null) {
+    const response = { success, message };
+    if (data) response.data = data;
+    if (error) response.error = error;
+    return res.status(status).json(response);
+  }
+
+  // Get all users (Admin only)
+async getAllUsers(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count of documents
+    const total = await this.User.countDocuments({ isDeleted: false });
+
+    const users = await this.User.find({ isDeleted: false })
+      .select('-password -__v')
+      .populate('followers following roomsJoined')
+      .skip(skip)
+      .limit(limit);
+
+    this._sendResponse(res, 200, true, 'Users retrieved successfully', {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       }
-      res.status(200).json({ success: true, data: user });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error At User', error: err.message });
-    }
-  };
-  const updateUser = async (req, res) => {
-    const { firstname, lastname, username, bio, profilePic } = req.body;
+    });
     
-    try {
-      // console.log("incoming");
-      const updatedUser = await User.findByIdAndUpdate(req.params.id, {
-        firstname, lastname, username, bio, profilePic, lastActive: Date.now()
-      }, { new: true });
-  
-      if (!updatedUser) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-  
-      res.status(200).json({ success: true, data: updatedUser });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error Check', error: err.message });
-    }
-  };
+  } catch (err) {
+    this._sendResponse(res, 500, false, 'Server error', null, err.message);
+  }
+}
 
-  const deleteUser = async (req, res) => {
+  // Get current user profile
+  async getCurrentUser(req, res) {
     try {
-      const deletedUser = await User.findByIdAndUpdate(req.params.id, {
-        isDeleted: true, deletedAt: Date.now()
-      }, { new: true });
-  
-      if (!deletedUser) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-  
-      res.status(200).json({ success: true, message: 'User deleted successfully' });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error', error: err.message });
-    }
-  };
-
-  const getAllUsers = async (req, res) => {
-    try {
-      const users = await User.find().populate('followers following roomsJoined');
-      res.status(200).json({ success: true, data: users });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error', error: err.message });
-    }
-  };
-
-  const followUser = async (req, res) => {
-    try {
-      const userToFollow = await User.findById(req.params.id);
-      const currentUser = await User.findById(req.user._id); // Assuming user ID is in the token
+      const user = await this.User.findById(req.user._id)
+        .select('-password -__v')
+        .populate('followers following');
       
-      if (!userToFollow || !currentUser) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+      if (!user) {
+        return this._sendResponse(res, 404, false, 'User not found');
       }
-  
+
+      // Format profile picture URL
+      user.profilePic = getImageURL(user.profilePic);
+      this._sendResponse(res, 200, true, 'User profile retrieved', user);
+    } catch (err) {
+      this._sendResponse(res, 500, false, 'Server error', null, err.message);
+    }
+  }
+
+  // Get user by ID (Admin or self)
+  async getUserById(req, res) {
+    try {
+      const user = await this.User.findById(req.params.id)
+        .select('-password -__v')
+        .populate('followers following roomsJoined');
+      
+      if (!user || user.isDeleted) {
+        return this._sendResponse(res, 404, false, 'User not found');
+      }
+
+      this._sendResponse(res, 200, true, 'User retrieved successfully', user);
+    } catch (err) {
+      this._sendResponse(res, 500, false, 'Server error', null, err.message);
+    }
+  }
+
+  // Edit user profile
+  async editProfile(req, res) {
+    try {
+      this.uploadProfilePic(req, res, async (err) => {
+        if (err) {
+          return this._sendResponse(res, 400, false, err.message);
+        }
+
+        const userId = req.user._id;
+        const { 
+          firstname, 
+          lastname, 
+          username, 
+          email, 
+          phone, 
+          bio,
+          socialLinks
+        } = req.body;
+
+        // Find user
+        const user = await this.User.findById(userId);
+        if (!user) {
+          return this._sendResponse(res, 404, false, 'User not found');
+        }
+
+        // Update basic fields
+        user.firstname = firstname || user.firstname;
+        user.lastname = lastname || user.lastname;
+        user.username = username || user.username;
+        user.email = email || user.email;
+        user.phone = phone || null;
+        user.bio = bio || null;
+        user.lastActive = Date.now();
+
+        // Handle social links
+        if (socialLinks) {
+          try {
+            const parsedLinks = typeof socialLinks === 'string' ? JSON.parse(socialLinks) : socialLinks;
+            user.socialLinks = {
+              twitter: parsedLinks.twitter || null,
+              facebook: parsedLinks.facebook || null,
+              instagram: parsedLinks.instagram || null,
+              linkedin: parsedLinks.linkedin || null,
+              website: parsedLinks.website || null
+            };
+          } catch (e) {
+            console.error('Error parsing social links:', e);
+          }
+        }
+
+        // Handle profile picture upload
+        if (req.file) {
+          // Delete old profile picture if exists
+          if (user.profilePic) {
+            deleteFile(user.profilePic);
+          }
+          user.profilePic = getRelativePath(req.file.path);
+        }
+
+        // Save updated user
+        const updatedUser = await user.save();
+        updatedUser.password = undefined; // Remove password from response
+        updatedUser.__v = undefined;
+
+        this._sendResponse(res, 200, true, 'Profile updated successfully', updatedUser);
+      });
+    } catch (error) {
+      this._sendResponse(res, 500, false, 'Internal server error', null, error.message);
+    }
+  }
+
+  // Update user (Admin only)
+  async updateUser(req, res) {
+    try {
+      const user = await this.User.findById(req.params.id);
+      if (!user || user.isDeleted) {
+        return this._sendResponse(res, 404, false, 'User not found');
+      }
+
+      // Update fields
+      const updatableFields = ['firstname', 'lastname', 'username', 'bio', 'profilePic', 'role', 'isBanned'];
+      updatableFields.forEach(field => {
+        if (req.body[field] !== undefined) {
+          user[field] = req.body[field];
+        }
+      });
+
+      user.lastActive = Date.now();
+      const updatedUser = await user.save();
+      updatedUser.password = undefined;
+      updatedUser.__v = undefined;
+
+      this._sendResponse(res, 200, true, 'User updated successfully', updatedUser);
+    } catch (err) {
+      this._sendResponse(res, 500, false, 'Server error', null, err.message);
+    }
+  }
+
+  // Delete user (soft delete)
+  async deleteUser(req, res) {
+    try {
+      const user = await this.User.findById(req.params.id);
+      if (!user || user.isDeleted) {
+        return this._sendResponse(res, 404, false, 'User not found');
+      }
+
+      user.isDeleted = true;
+      user.deletedAt = Date.now();
+      await user.save();
+
+      this._sendResponse(res, 200, true, 'User deleted successfully');
+    } catch (err) {
+      this._sendResponse(res, 500, false, 'Server error', null, err.message);
+    }
+  }
+
+  // Follow a user
+  async followUser(req, res) {
+    try {
+      const userToFollow = await this.User.findById(req.params.id);
+      const currentUser = await this.User.findById(req.user._id);
+      
+      if (!userToFollow || !currentUser || userToFollow.isDeleted) {
+        return this._sendResponse(res, 404, false, 'User not found');
+      }
+
+      // Check if already following
+      if (currentUser.following.includes(userToFollow._id)) {
+        return this._sendResponse(res, 400, false, 'Already following this user');
+      }
+
       currentUser.following.push(userToFollow._id);
       userToFollow.followers.push(currentUser._id);
-  
+
       await currentUser.save();
       await userToFollow.save();
-  
-      res.status(200).json({ success: true, message: 'User followed successfully' });
+
+      this._sendResponse(res, 200, true, 'User followed successfully');
     } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error', error: err.message });
+      this._sendResponse(res, 500, false, 'Server error', null, err.message);
     }
-  };
-  const unfollowUser = async (req, res) => {
+  }
+
+  // Unfollow a user
+  async unfollowUser(req, res) {
     try {
-      const userToUnfollow = await User.findById(req.params.id);
-      const currentUser = await User.findById(req.user._id); // Assuming user ID is in the token
+      const userToUnfollow = await this.User.findById(req.params.id);
+      const currentUser = await this.User.findById(req.user._id);
       
-      if (!userToUnfollow || !currentUser) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+      if (!userToUnfollow || !currentUser || userToUnfollow.isDeleted) {
+        return this._sendResponse(res, 404, false, 'User not found');
       }
-  
-      currentUser.following = currentUser.following.filter(id => id.toString() !== userToUnfollow._id.toString());
-      userToUnfollow.followers = userToUnfollow.followers.filter(id => id.toString() !== currentUser._id.toString());
-  
+
+      // Check if actually following
+      if (!currentUser.following.includes(userToUnfollow._id)) {
+        return this._sendResponse(res, 400, false, 'Not following this user');
+      }
+
+      currentUser.following = currentUser.following.filter(id => !id.equals(userToUnfollow._id));
+      userToUnfollow.followers = userToUnfollow.followers.filter(id => !id.equals(currentUser._id));
+
       await currentUser.save();
       await userToUnfollow.save();
-  
-      res.status(200).json({ success: true, message: 'User unfollowed successfully' });
+
+      this._sendResponse(res, 200, true, 'User unfollowed successfully');
     } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error', error: err.message });
+      this._sendResponse(res, 500, false, 'Server error', null, err.message);
     }
-  };
-    
-  const getCurrentUser = async (req, res) => {
-    try {
-      // Use the current user's ID from the JWT token (req.user._id)
-      // console.log("In User:",req.user);
-      const currentUser = await User.findById(req.user._id).populate('followers following');
-      currentUser.profilePic=getImageURL(currentUser.profilePic);
-      if (!currentUser) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-      // console.log(currentUser);
-      res.status(200).json({ success: true, data: currentUser });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error in Curr', error: err.message });
-    }
-  };
-  
-  module.exports={
-      getUserById,
-      updateUser,
-      deleteUser,
-      getAllUsers,
-      followUser,
-      unfollowUser,
-      getCurrentUser,
-      editProfile
-  };
+  }
+}
+
+module.exports = new UserController();

@@ -1,10 +1,11 @@
 const express=require("express");
-const {loginUserAuth,forgotPassword,registerUser,logoutUser}=require("../controllers/authController");
+const {loginUserAuth,forgotPassword,registerUser,logoutUser,refreshToken}=require("../controllers/authController");
 const {getCurrentUser}=require("../controllers/userController");
 const {verifyToken}=require("../middleware/authMiddleware");
 const router=express.Router();
 router.post("/login-user-auth",loginUserAuth);
 router.post("/forgot-password",forgotPassword);
+router.post('/refresh', refreshToken);
 router.post("/register-user",registerUser);
 router.get('/me', verifyToken, getCurrentUser);
 router.post("/logout",verifyToken,logoutUser);

@@ -1,32 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/authMiddleware');  // Ensure the user is logged in
+const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
+const userController = require('../controllers/userController');
 
-// Import the user controller functions
-const {
-  getUserById,
-  updateUser,
-  deleteUser,
-  getAllUsers,
-  followUser,
-  unfollowUser,
-  getCurrentUser,
-  editProfile
-} = require('../controllers/userController');
+// User profile routes
+router.put("/edit-profile", verifyToken, userController.editProfile);
+router.get("/me", verifyToken, userController.getCurrentUser);
 
-// Static and specific routes first
-router.put("/edit-profile", verifyToken, editProfile);
-router.put("/follow/:id", verifyToken, followUser);
-router.put("/unfollow/:id", verifyToken, unfollowUser);
+// Follow/unfollow routes
+router.put("/follow/:id", verifyToken, userController.followUser);
+router.put("/unfollow/:id", verifyToken, userController.unfollowUser);
 
-// Routes with no parameters but unique purpose
-router.get("/me", verifyToken, getCurrentUser); // If you have this
-router.get("/", verifyToken, getAllUsers);
-
-// Dynamic parameterized routes last
-router.get('/:id', verifyToken, getUserById);
-router.put('/:id', verifyToken, updateUser);
-router.delete('/:id', verifyToken, deleteUser);
-
+// Admin routes
+router.get("/", verifyToken, authorizeRoles(['admin']), userController.getAllUsers);
+router.get('/:id', verifyToken, authorizeRoles(['admin']), userController.getUserById);
+router.put('/:id', verifyToken, authorizeRoles(['admin']), userController.updateUser);
+router.delete('/:id', verifyToken, authorizeRoles(['admin']), userController.deleteUser);
 
 module.exports = router;
