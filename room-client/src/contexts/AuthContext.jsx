@@ -8,19 +8,21 @@ const AuthContext = createContext();
 
 const roleRoutes = {
   visitor: [
-    { label: "Home", route: "/", icon: "HomeIcon" },
+    { label: "Home", route: "/admin", icon: "HomeIcon" },
     { label: "Login", route: "/auth/login", icon: "AccountCircleIcon" },
   ],
   user: [
-    { label: "Home", route: "/", icon: "HomeIcon" },
+    { label: "Home", route: "/route", icon: "HomeIcon" },
     { label: "Rooms", route: "/room", icon: "GroupIcon" },
     { label: "Profile", route: "/profile", icon: "AccountCircleIcon" }
 
   ],
   admin: [
-    { label: "Home", route: "/", icon: "HomeIcon" },
+    { label: "Home", route: "/admin/", icon: "HomeIcon" },
     { label: "Users", route: "/admin/users", icon: "GroupIcon" },
-    { label: "Settings", route: "/admin/settings", icon: "SettingsIcon" },
+    { label: "Rooms", route: "/admin/rooms", icon: "GroupIcon" },
+    { label: "Posts", route: "/admin/posts", icon: "GroupIcon" },
+    { label: "Profile", route: "/admin/profile", icon: "AccountCircleIcon" },
   ],
 };
 
@@ -51,30 +53,24 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setRoleBasedRoutes(roleRoutes.visitor);
       } finally {
-        setAuthLoader(false); 
+        setAuthLoader(false);
+        
       }
     };
 
   useEffect(() => {
 
-    if (!location.pathname.includes("auth")) {
-      fetchUser();
-    }
-
+    fetchUser(); // Fetch user data on moun
     // Set redirectTo state if the current location is a login or auth route
-    if (location.pathname === "/auth/login") {
-      const from = location.state?.from || "/";  // If no referrer, go to home
-      setRedirectTo(from);
-    }
+    // if (location.pathname === "/auth/login") {
+    //   const from = location.state?.from || "/route";  // If no referrer, go to home
+    //   setRedirectTo(from);
+    // }
    
   }, [location.pathname,isFetched]);
 
-  const handleLogin = () => {
-    if (redirectTo) {
-      navigate(redirectTo);  // Redirect to the page they were trying to access
-    } else {
-      navigate("/");  // Default to home if no redirect is set
-    }
+  const handleLogin = async() => {
+    await fetchUser(); // Fetch user data after login
   };
 
   const logout = async () => {
