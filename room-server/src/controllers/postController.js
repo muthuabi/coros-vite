@@ -276,26 +276,31 @@ async trackView(req, res) {
     if (!post) {
       return res.status(404).json({ success: false, error: 'Post not found' });
     }
+
     if (req.user) {
+      // post.views += 1;
+      // post.viewHistory.push({
+      //   userId: req.user._id,
+      //   viewedAt: new Date()
+      // });
       const lastView = post.viewHistory.find(
         view => view.userId.equals(req.user._id) && 
-        new Date() - new Date(view.viewedAt) < 24 * 60 * 60 * 1000
+        new Date() - new Date(view.viewedAt) < (10 * 1000)
       );
-      
+
       if (!lastView) {
         post.views += 1;
         post.viewHistory.push({
           userId: req.user._id,
           viewedAt: new Date()
         });
-        await post.save();
       }
-    } else {
+    } 
+    else {
       // For anonymous users
       // post.views += 1;
-      await post.save();
     }
-
+    await post.save();
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error tracking view:', error);
