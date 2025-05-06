@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { createUploader, deleteFile, getRelativePath } = require('../utils/fileUploadUtils');
 const getImageURL = require("../utils/getImageURL");
-
+const bcrypt = require('bcryptjs');
 class UserController {
   constructor() {
     this.User = mongoose.model('User');
@@ -17,6 +17,7 @@ class UserController {
     this.getUserById = this.getUserById.bind(this);
     this.editProfile = this.editProfile.bind(this);
     this.updateUser = this.updateUser.bind(this);
+    this.createUser = this.createUser.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
     this.followUser = this.followUser.bind(this);
     this.unfollowUser = this.unfollowUser.bind(this);
@@ -24,12 +25,77 @@ class UserController {
   }
 
   // Helper method for consistent responses
-  _sendResponse(res, status, success, message, data = null, error = null) {
+  _sendResponse(res, status, success, message, data = null, error = null,user=null) {
     const response = { success, message };
     if (data) response.data = data;
     if (error) response.error = error;
+    if (user) response.user=user;
     return res.status(status).json(response);
   }
+
+async createUser(req, res) {
+    try {
+      const { 
+        firstname, 
+        lastname, 
+        username, 
+        email, 
+        phone, 
+        password,
+        role,
+        isBanned,
+        bio,
+        socialLinks
+      } = req.body;
+
+      // Validate required fields
+      if (!username || !email || !password) {
+        return this._sendResponse(res, 400, false, 'Username, email and password are required');
+      }
+
+      // Check for existing user
+      const existingUser = await this.User.findOne({ $or: [{ username }, { email }] });
+      if (existingUser) {
+        return this._sendResponse(res, 400, false, 'Username or email already exists');
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create new user
+      const newUser = new this.User({
+        firstname,
+        lastname,
+        username,
+        email,
+        phone: phone || null,
+        password: hashedPassword,
+        role: role || 'user',
+        isBanned: isBanned || false,
+        bio: bio || null,
+        socialLinks: socialLinks ? {
+          twitter: socialLinks.twitter || null,
+          facebook: socialLinks.facebook || null,
+          instagram: socialLinks.instagram || null,
+          linkedin: socialLinks.linkedin || null,
+          website: socialLinks.website || null
+        } : null
+      });
+
+      const savedUser = await newUser.save();
+      
+      // Return user data without password
+      const userResponse = savedUser.toObject();
+      delete userResponse.password;
+      delete userResponse.__v;
+
+      this._sendResponse(res, 201, true, 'User created successfully', userResponse);
+    } catch (error) {
+      this._sendResponse(res, 500, false, 'Failed to create user', null, error.message);
+    }
+  }
+
+
 
   // Get all users (Admin only)
 async getAllUsers(req, res) {
@@ -162,7 +228,7 @@ async getAllUsers(req, res) {
         updatedUser.password = undefined; // Remove password from response
         updatedUser.__v = undefined;
 
-        this._sendResponse(res, 200, true, 'Profile updated successfully', updatedUser);
+        this._sendResponse(res, 200, true, 'Profile updated successfully', updatedUser,null,updatedUser);
       });
     } catch (error) {
       this._sendResponse(res, 500, false, 'Internal server error', null, error.message);
@@ -170,31 +236,70 @@ async getAllUsers(req, res) {
   }
 
   // Update user (Admin only)
-  async updateUser(req, res) {
+async updateUser(req, res) {
     try {
       const user = await this.User.findById(req.params.id);
       if (!user || user.isDeleted) {
         return this._sendResponse(res, 404, false, 'User not found');
       }
 
-      // Update fields
-      const updatableFields = ['firstname', 'lastname', 'username', 'bio', 'profilePic', 'role', 'isBanned'];
-      updatableFields.forEach(field => {
-        if (req.body[field] !== undefined) {
-          user[field] = req.body[field];
-        }
-      });
+      const {
+        firstname,
+        lastname,
+        username,
+        email,
+        phone,
+        password, // Optional password update
+        role,
+        isBanned,
+        bio,
+        socialLinks
+      } = req.body;
+
+      // Update basic fields
+      if (firstname !== undefined) user.firstname = firstname;
+      if (lastname !== undefined) user.lastname = lastname;
+      if (username !== undefined) user.username = username;
+      if (email !== undefined) user.email = email;
+      if (phone !== undefined) user.phone = phone;
+      if (role !== undefined) user.role = role;
+      if (isBanned !== undefined) user.isBanned = isBanned;
+      if (bio !== undefined) user.bio = bio;
+
+      // Update password if provided
+      if (password) {
+        user.password = await bcrypt.hash(password, 10);
+      }
+
+      // Update social links
+      if (socialLinks) {
+        user.socialLinks = {
+          twitter: socialLinks.twitter || null,
+          facebook: socialLinks.facebook || null,
+          instagram: socialLinks.instagram || null,
+          linkedin: socialLinks.linkedin || null,
+          website: socialLinks.website || null
+        };
+      }
 
       user.lastActive = Date.now();
       const updatedUser = await user.save();
-      updatedUser.password = undefined;
-      updatedUser.__v = undefined;
 
-      this._sendResponse(res, 200, true, 'User updated successfully', updatedUser);
-    } catch (err) {
-      this._sendResponse(res, 500, false, 'Server error', null, err.message);
+      // Return updated user without sensitive data
+      const userResponse = updatedUser.toObject();
+      delete userResponse.password;
+      delete userResponse.__v;
+
+      this._sendResponse(res, 200, true, 'User updated successfully', userResponse);
+    } catch (error) {
+      if (error.code === 11000) {
+        this._sendResponse(res, 400, false, 'Username or email already exists');
+      } else {
+        this._sendResponse(res, 500, false, 'Failed to update user', null, error.message);
+      }
     }
   }
+
 
   // Delete user (soft delete)
   async deleteUser(req, res) {

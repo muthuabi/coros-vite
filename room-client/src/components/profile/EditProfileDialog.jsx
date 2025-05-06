@@ -142,6 +142,7 @@ const EditProfileDialog = ({ profile, onUpdate }) => {
             render({ data }) {
               // Preserve image if server didn't return one
               const updatedUser = data.data.user;
+              console.log(data);
               if (!updatedUser.profilePic && values.profilePic) {
                 updatedUser.profilePic =
                   typeof values.profilePic === "string"

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axos from "../axos";
 import { useUIState } from "../contexts/UIStateContext";
@@ -35,6 +35,11 @@ export const AuthProvider = ({ children }) => {
   const [isFetched, setIsFetched] = useState(false);
   const [redirectTo, setRedirectTo] = useState(null);
   
+  // Track refresh token state
+  const refreshInProgress = useRef(false);
+  const lastRefreshTime = useRef(0);
+  const refreshQueue = useRef([]);
+
   // Add axios response interceptor for token refresh
   useEffect(() => {
     const interceptor = axos.interceptors.response.use(
@@ -42,22 +47,53 @@ export const AuthProvider = ({ children }) => {
       async error => {
         const originalRequest = error.config;
         
-        // If error is 401 and we haven't already retried
+        // Only handle 401 errors for authenticated routes
         if (error.response?.status === 401 && !originalRequest._retry) {
+          // If we already have a refresh in progress, queue the request
+          if (refreshInProgress.current) {
+            return new Promise((resolve, reject) => {
+              refreshQueue.current.push({ originalRequest, resolve, reject });
+            });
+          }
+          
+          // Rate limiting - don't refresh more than once every 30 seconds
+          const now = Date.now();
+          if (now - lastRefreshTime.current < 30000) {
+            await logout();
+            return Promise.reject(error);
+          }
+          
           originalRequest._retry = true;
+          refreshInProgress.current = true;
+          lastRefreshTime.current = now;
           
           try {
             // Attempt to refresh token
             const res = await axos.post('/api/auth/refresh', {}, {
-              withCredentials: true // Important for sending refresh token cookie
+              withCredentials: true
             });
             
-            // Retry original request with new token
+            // Process queued requests
+            while (refreshQueue.current.length) {
+              const queued = refreshQueue.current.shift();
+              try {
+                const retryResponse = await axos(queued.originalRequest);
+                queued.resolve(retryResponse);
+              } catch (err) {
+                queued.reject(err);
+              }
+            }
+            
+            // Retry original request
             return axos(originalRequest);
           } catch (refreshError) {
-            // If refresh fails, logout user
+            // If refresh fails, logout user and reject all queued requests
             await logout();
+            refreshQueue.current.forEach(queued => queued.reject(refreshError));
+            refreshQueue.current = [];
             return Promise.reject(refreshError);
+          } finally {
+            refreshInProgress.current = false;
           }
         }
         return Promise.reject(error);
@@ -95,30 +131,27 @@ export const AuthProvider = ({ children }) => {
   }, [location.pathname, isFetched]);
 
   const handleLogin = async (loginData) => {
-    try {
-      setAuthLoader(true);
-      await axos.post("/api/auth/login", loginData, {
-        withCredentials: true // Important for receiving cookies
-      });
+    // try {
+    //   setAuthLoader(true);
+    //   await axos.post("/api/auth/login", loginData, {
+    //     withCredentials: true
+    //   });
       await fetchUser();
-    } catch (err) {
-      console.error("Login failed", err.message);
-      throw err;
-    } finally {
-      setAuthLoader(false);
-    }
+    // } catch (err) {
+    //   console.error("Login failed", err.message);
+    //   throw err;
+    // } finally {
+    //   setAuthLoader(false);
+    // }
   };
 
   const logout = async () => {
     try {
       setAuthLoader(true);
-      await axos.post("/api/auth/logout", {}, {
-        withCredentials: true // Important for cookie clearing
-      }); 
+      await axos.post("/api/auth/logout"); 
       setUser(null);
       setLoggedIn(false);
-      setIsFetched(false);
-      setRoleBasedRoutes(roleRoutes.visitor);
+      setIsFetched(false); 
     } catch (err) {
       console.error("Logout failed", err.message);
     } finally {

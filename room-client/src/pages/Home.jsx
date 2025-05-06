@@ -29,7 +29,7 @@ import Carousel from 'react-bootstrap/Carousel';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 const Home = () => {
   const { loggedIn,user,roleBasedRoutes } = useAuth();
   const { mode, toggleColorMode } = useThemeContext();
@@ -157,8 +157,9 @@ const Home = () => {
               <Button
                 variant="contained"
                 color="primary"
+                component={Link}
                 startIcon={<AccountCircleIcon />}
-                href="/auth/login"
+                to="/auth/login"
                 sx={{ borderRadius: 8, px: 3 }}
               >
                 Login

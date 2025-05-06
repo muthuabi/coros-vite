@@ -67,6 +67,7 @@ const fetchUsers = async () => {
       username: '',
       email: '',
       phone: '',
+      password:'',
       role: 'user',
       isBanned: false,
       bio: '',
@@ -125,29 +126,35 @@ const fetchUsers = async () => {
     }));
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+const handleSubmit = async () => {
+  if (!validateForm()) return;
 
-    try {
-      if (currentUser._id) {
-        await axos.put(`/api/user/${currentUser._id}`, currentUser);
-        showSnackbar('User updated successfully');
-      } else {
-        await axos.post('/api/user', currentUser);
-        showSnackbar('User created successfully');
-      }
-      fetchUsers();
-      handleCloseDialog();
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Operation failed';
+  try {
+    const userData = {
+      ...currentUser,
+      // Only include password if it's a new user or if password field was changed
+      password: currentUser._id ? undefined : currentUser.password
+    };
+
+    if (currentUser._id) {
+      await axos.put(`/api/user/${currentUser._id}`, userData);
+      showSnackbar('User updated successfully');
+    } else {
+      await axos.post('/api/user', userData);
+      showSnackbar('User created successfully');
+    }
+    fetchUsers();
+    handleCloseDialog();
+  } catch (err) {
+          const errorMsg = err.response?.data?.message || 'Operation failed';
       showSnackbar(errorMsg, 'error');
       
       // Handle validation errors from server
       if (err.response?.data?.errors) {
         setValidationErrors(err.response.data.errors);
       }
-    }
-  };
+  }
+};
 
   const handleDeleteClick = (user) => {
     setDeleteConfirm({
@@ -350,6 +357,34 @@ const fetchUsers = async () => {
               error={!!validationErrors.email}
               helperText={validationErrors.email}
             />
+            {!currentUser?._id && (
+  <TextField
+    fullWidth
+    label="Password"
+    name="password"
+    type="password"
+    value={currentUser?.password || ''}
+    onChange={handleChange}
+    margin="normal"
+    required
+    error={!!validationErrors.password}
+    helperText={validationErrors.password}
+    sx={{ gridColumn: 'span 2' }}
+  />
+)}
+
+{currentUser?._id && (
+  <TextField
+    fullWidth
+    label="New Password (leave blank to keep current)"
+    name="password"
+    type="password"
+    value={currentUser?.password || ''}
+    onChange={handleChange}
+    margin="normal"
+    sx={{ gridColumn: 'span 2' }}
+  />
+)}
             <TextField
               fullWidth
               label="Phone"
