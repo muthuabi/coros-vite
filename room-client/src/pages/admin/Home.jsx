@@ -1,56 +1,49 @@
 import React, { useState, useEffect } from "react";
-import DiscussionRoom from "../components/DiscussionRoom";
-import {
-  Box,
-  CssBaseline,
-  AppBar,
-  Toolbar,
-  Typography,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Avatar,
-  useMediaQuery,
-  IconButton,
-  Menu,
-  MenuItem,
-  Switch,
-  Card,
-  CardHeader,
-  CardContent,
-  CardMedia,
-  CardActions,
-  Divider,
-  ThemeProvider,
-  createTheme,
-  TextField,
-} from "@mui/material";
-import {
-  Home as HomeIcon,
-  Group as GroupIcon,
-  Settings as SettingsIcon,
-  AccountCircle as AccountCircleIcon,
-  Logout as LogoutIcon,
-  MoreVert as MoreVertIcon,
-  Favorite as FavoriteIcon,
-  Share as ShareIcon,
-  ChatBubble as CommentIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
-} from "@mui/icons-material";
+// MUI Components
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Avatar from "@mui/material/Avatar";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Switch from "@mui/material/Switch";
+import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import CardActions from "@mui/material/CardActions";
+import Divider from "@mui/material/Divider";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import createTheme from "@mui/material/styles/createTheme";
+import TextField from "@mui/material/TextField";
+
+// MUI Icons
+import LoginIcon from "@mui/icons-material/Login";
+import DarkModeIcon from "@mui/icons-material/Brightness4";
+import LightModeIcon from "@mui/icons-material/Brightness7";
+
 import MenuIcon from "@mui/icons-material/Menu";
 import { styled,useTheme } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import InputAdornment from "@mui/material/InputAdornment";
-import { useNavigate,Link } from "react-router-dom";
-import PostCard from "../components/PostCard";
-import {useThemeContext} from '../contexts/ThemeContext';
-// Create a theme instance
+import { useNavigate,Link,Outlet } from "react-router-dom";
+import PostCard from "../../components/post/PostCard";
+import {useThemeContext} from '../../contexts/ThemeContext';
+import Sidebar from '../../components/user/Sidebar';
+import { useAuth } from "../../contexts/AuthContext";
+import Button from '@mui/material/Button';
+import {useSearch} from '../../contexts/SearchContext';
 const drawerWidth = 240;
-
 const Main = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -66,7 +59,6 @@ const Main = styled("main")(({ theme }) => ({
     marginLeft: 0,
   },
 }));
-
 const AppBarStyled = styled(AppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
   backgroundColor: theme.palette.background.paper,
@@ -74,37 +66,19 @@ const AppBarStyled = styled(AppBar)(({ theme }) => ({
   boxShadow: "none",
   borderBottom: `1px solid ${theme.palette.divider}`,
 }));
-
-const DrawerStyled = styled(Drawer)(({ theme }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  "& .MuiDrawer-paper": {
-    width: drawerWidth,
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.primary,
-    borderRight: "none",
-  },
-}));
-
-const dummyPosts = Array.from({ length: 5 }).map((_, idx) => ({
-  id: idx,
-  username: `User${idx + 1}`,
-  avatar: `https://i.pravatar.cc/150?img=${idx + 10}`,
-  image: `https://picsum.photos/seed/post${idx + 1}/500/300`,
-  content: `This is a dummy post #${idx + 1}. Enjoying the community vibe!`,
-  createdAt: new Date(Date.now() - idx * 3600000).toLocaleString(),
-  likes: Math.floor(Math.random() * 100),
-  comments: Math.floor(Math.random() * 20),
-}));
-
-export default function HomeFeed() {
+export default function Home() {
   const navigate = useNavigate();
   const theme=useTheme();
+  const {loggedIn,user,roleBasedRoutes,handleLogin,logout}=useAuth();
   const {mode,toggleColorMode}=useThemeContext();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { searchQuery, setSearchQuery } = useSearch();
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -114,41 +88,10 @@ export default function HomeFeed() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  const routes = [
-    { label: "Home", route: "/", icon: <HomeIcon />, hidden: false },
-    { label: "Rooms", route: "/room", icon: <GroupIcon />, hidden: false },
-    { label: "Settings", route: "/settings", icon: <SettingsIcon />, hidden: false },
-    { label: "Profile", route: "/profile", icon: <AccountCircleIcon />, hidden: false },
-    { label: "Logout", route: "/logout", icon: <LogoutIcon />, hidden: false },
-  ];
-  const drawer = (
-    <div>
-      <Toolbar />
-      <Divider />
-      <List>
-        {
-          routes.map(
-          (value, index) => {
-
-            return (
-              <ListItem button component={Link} to={value.route} key={index}>
-                <ListItemIcon sx={{ color: "inherit" }}>
-                  {value.icon}
-                </ListItemIcon>
-                <ListItemText primary={value.label} />
-              </ListItem>
-            );
-          }
-        )}
-      </List>
-    </div>
-  );
 
   return (
     <ThemeProvider theme={theme}>
-      {/*<DiscussionRoom/>*/}
       <Box sx={{ display: "flex" }}>
-
         <AppBarStyled position="fixed">
           <Toolbar>
             {isMobile && (
@@ -171,7 +114,6 @@ export default function HomeFeed() {
             >
               CoRoS
             </Typography>
-
             {/* Search Bar - Desktop */}
             <Box
               sx={{
@@ -186,6 +128,8 @@ export default function HomeFeed() {
                 size="small"
                 placeholder="Search..."
                 fullWidth
+                value={searchQuery}
+                onChange={handleSearchChange}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -197,7 +141,6 @@ export default function HomeFeed() {
                 }}
               />
             </Box>
-
             {/* Search Icon - Mobile */}
             <IconButton
               color="inherit"
@@ -206,12 +149,13 @@ export default function HomeFeed() {
             >
               <SearchIcon />
             </IconButton>
-
             <IconButton onClick={toggleColorMode} color="inherit">
               {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
+            {
+              (loggedIn)?(<>
 
-            <IconButton
+                <IconButton
               size="large"
               edge="end"
               aria-label="account of current user"
@@ -221,11 +165,10 @@ export default function HomeFeed() {
               color="inherit"
             >
               <Avatar
-                src="https://i.pravatar.cc/150?img=33"
+                src={user.profilePic || '/default-avatar.png'}
                 alt="User Avatar"
               />
             </IconButton>
-
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
@@ -241,12 +184,22 @@ export default function HomeFeed() {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem component={Link} to={"/profile"} onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+              <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
+              </>):(<Button
+                component={Link}
+                variant="text"
+                color="default"
+                startIcon={<LoginIcon />}
+                to={"/auth/login"}
+                // onClick={handleLogin}
+              >
+                Login
+              </Button>)
+            }
           </Toolbar>
-
           {/* Mobile Search Bar - appears when clicking search icon */}
           {showMobileSearch && (
             <Box
@@ -262,6 +215,8 @@ export default function HomeFeed() {
                 size="small"
                 placeholder="Search..."
                 fullWidth
+                value={searchQuery}
+                onChange={handleSearchChange}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -281,51 +236,16 @@ export default function HomeFeed() {
             </Box>
           )}
         </AppBarStyled>
-
-        <Box
-          component="nav"
-          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-          aria-label="mailbox folders"
-        >
-          {/* Mobile drawer */}
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-            sx={{
-              display: { xs: "block", sm: "none" },
-              "& .MuiDrawer-paper": {
-                boxSizing: "border-box",
-                width: drawerWidth,
-              },
-            }}
-          >
-            {drawer}
-          </Drawer>
-          {/* Desktop drawer */}
-          <DrawerStyled
-            variant="permanent"
-            sx={{
-              display: { xs: "none", sm: "block" },
-            }}
-          >
-            {drawer}
-          </DrawerStyled>
-        </Box>
-
+        <Sidebar rolebased drawerWidth={drawerWidth} mobileOpen={mobileOpen} roleBasedRoutes={roleBasedRoutes} handleDrawerToggle={handleDrawerToggle}/>
         <Main
           sx={{
             margin: "auto",
             padding: { xs: 2, sm: 3 },
+            width:"100%"
           }}
         >
           <Toolbar />
-          {dummyPosts.map((post) => (
-            <PostCard post={post} key={post.id} />
-          ))}
+          <Outlet/>
         </Main>
       </Box>
     </ThemeProvider>

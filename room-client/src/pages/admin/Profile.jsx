@@ -11,11 +11,11 @@ import {
   useTheme
 } from '@mui/material';
 import { Edit, CameraAlt, Twitter, Facebook, Instagram, LinkedIn, Language } from '@mui/icons-material';
-import MyTab from '../components/MyTab';
-import EditProfileDialog from '../components/EditProfileDialog';
-import { useUIState } from '../contexts/UIStateContext';
-import {useAuth} from '../contexts/AuthContext';
-import axos from '../axos';
+import MyTab from '../../components/util/MyTab';
+import EditProfileDialog from '../../components/profile/EditProfileDialog';
+import { useUIState } from '../../contexts/UIStateContext';
+import {useAuth} from '../../contexts/AuthContext';
+import axos from '../../axos';
 
 const Profile = () => {
   const theme = useTheme();
@@ -38,8 +38,9 @@ const Profile = () => {
     //     setLoading(false);
     //   }
     // };
-
     // fetchProfile();
+    if(user)
+        setLoading(false);
     setProfile(user);
   
   }, [user]);

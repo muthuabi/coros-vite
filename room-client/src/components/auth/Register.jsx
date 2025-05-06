@@ -8,14 +8,14 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Box from "@mui/material/Box";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import logo_svg from "../assets/svg/chat-class.svg";
+import logo_svg from "../../assets/svg/chat-class.svg";
 import { useNavigate, Link } from "react-router-dom";
-import { useTogglePage } from "../pages/LoginRegister";
+import { useTogglePage } from "../../pages/LoginRegister";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import IconButton from "@mui/material/IconButton";
-import axos from "../axos";
+import axos from "../../axos";
 const validationSchema = Yup.object({
   username:Yup.string().required("Username is Required").matches(/^[a-z]/,"Username should start with lowercase alphabet").min("3","Username should be at least 3 characters").max(20,"Username shouldn't exceed 10 characters"),
   firstname: Yup.string().required("First Name is required"),

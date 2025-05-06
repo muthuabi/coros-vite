@@ -11,8 +11,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axos from "../axos";
-const ForgotPasswordDialog = () => {
+import axos from "../../axos";
+const ForgotPassword= () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -124,4 +124,4 @@ const handleResetPassword = () => {
   );
 };
 
-export default ForgotPasswordDialog;
+export default ForgotPassword;

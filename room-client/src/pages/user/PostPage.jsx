@@ -11,11 +11,11 @@ import {
   ArrowDownward, Bookmark, Comment, Share, Image as ImageIcon,
   VideoLibrary, Poll,ThumbUp
 } from '@mui/icons-material';
-import { useAuth } from '../contexts/AuthContext';
-import { useUIState } from '../contexts/UIStateContext';
-import MarkupEditor from '../components/posts/MarkupEditor';
-import axos from '../axos';
-import { useSearch } from '../contexts/SearchContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUIState } from '../../contexts/UIStateContext';
+import MarkupEditor from '../../components/util/MarkupEditor';
+import axos from '../../axos';
+import { useSearch } from '../../contexts/SearchContext';
 
 const PostPage = () => {
   const theme = useTheme();

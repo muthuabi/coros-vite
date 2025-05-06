@@ -12,7 +12,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {useTheme, styled} from '@mui/material/styles';
 import {Link, useLocation} from 'react-router-dom';
-import iconMap from "../utils/iconMap";
+import iconMap from "../../utils/iconMap";
 
 const Sidebar = (props) => {
   const {drawerWidth, handleDrawerToggle, mobileOpen, roleBasedRoutes} = props;

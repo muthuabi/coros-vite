@@ -1,5 +1,5 @@
 // components/GlobalLoader.jsx
-import { useUIState } from "../contexts/UIStateContext";
+import { useUIState } from "../../contexts/UIStateContext";
 import { Backdrop, CircularProgress } from "@mui/material";
 
 const GlobalLoader = () => {

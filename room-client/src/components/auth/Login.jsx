@@ -14,11 +14,11 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import logo_svg from "../assets/svg/chat-class.svg";
+import logo_svg from "../../assets/svg/chat-class.svg";
 import { useNavigate, useLocation,Link } from "react-router-dom";
-import { useTogglePage } from "../pages/LoginRegister";
-import axos from "../axos";
-import {useAuth} from "../contexts/AuthContext";
+import { useTogglePage } from "../../pages/LoginRegister";
+import axos from "../../axos";
+import {useAuth} from "../../contexts/AuthContext";
 
 const validationSchema = Yup.object({
   username: Yup.string()
@@ -81,7 +81,6 @@ const Login = () => {
       });
       validateUserPromise
         .then((response) => {
-          // console.log(res);
           handleLogin();
         })
         .catch((err) => console.log(err))

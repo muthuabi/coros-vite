@@ -3,18 +3,16 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axos from "../axos";
 import { useUIState } from "../contexts/UIStateContext";
-
 const AuthContext = createContext();
-
 const roleRoutes = {
   visitor: [
-    { label: "Home", route: "/admin", icon: "HomeIcon" },
+    { label: "Home", route: "/", icon: "HomeIcon" },
     { label: "Login", route: "/auth/login", icon: "AccountCircleIcon" },
   ],
   user: [
-    { label: "Home", route: "/route", icon: "HomeIcon" },
-    { label: "Rooms", route: "/room", icon: "GroupIcon" },
-    { label: "Profile", route: "/profile", icon: "AccountCircleIcon" }
+    { label: "Home", route: "/user/", icon: "HomeIcon" },
+    { label: "Rooms", route: "/user/room", icon: "GroupIcon" },
+    { label: "Profile", route: "/user/profile", icon: "AccountCircleIcon" }
 
   ],
   admin: [
@@ -35,11 +33,10 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isFetched, setIsFetched] = useState(false);
-  const [redirectTo, setRedirectTo] = useState(null);  // New state for redirect
-    const fetchUser = async () => {
+  const [redirectTo, setRedirectTo] = useState(null);  
+  const fetchUser = async () => {
       try {
        if (isFetched) return; 
-
         setAuthLoader(true); 
         const res = await axos.get("/api/auth/me");
         const user = res.data?.data;
@@ -53,24 +50,16 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setRoleBasedRoutes(roleRoutes.visitor);
       } finally {
-        setAuthLoader(false);
-        
+        setAuthLoader(false); 
       }
     };
 
   useEffect(() => {
-
-    fetchUser(); // Fetch user data on moun
-    // Set redirectTo state if the current location is a login or auth route
-    // if (location.pathname === "/auth/login") {
-    //   const from = location.state?.from || "/route";  // If no referrer, go to home
-    //   setRedirectTo(from);
-    // }
-   
+    fetchUser(); 
   }, [location.pathname,isFetched]);
 
   const handleLogin = async() => {
-    await fetchUser(); // Fetch user data after login
+    await fetchUser();
   };
 
   const logout = async () => {
@@ -84,6 +73,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Logout failed", err.message);
     } finally {
       setAuthLoader(false);
+      navigate("/");
     }
   };
 

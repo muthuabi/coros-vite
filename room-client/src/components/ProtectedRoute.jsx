@@ -9,8 +9,7 @@ import { useLocation } from "react-router-dom";
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { loggedIn, user, authLoader } = useAuth();
   const { uiState } = useUIState();
-  const location = useLocation();  // Get current location
-
+  const location = useLocation(); 
   if (authLoader) {
     return (
       <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}>
@@ -18,17 +17,13 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
       </Backdrop>
     );
   }
-
-  // If not logged in, redirect to login page with the "from" state
   if (!loggedIn) {
     return <Navigate to="/auth/login" state={{ from: location.pathname }} />;
   }
-
   // If user doesn't have permission, redirect to forbidden page
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/forbidden" replace />;
   }
-
   return children;
 };
 

@@ -17,10 +17,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { CameraAlt, Close, Save } from "@mui/icons-material";
-import { useUIState } from "../contexts/UIStateContext";
+import { useUIState } from "../../contexts/UIStateContext";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import axos from "../axos";
+import axos from "../../axos";
 import { toast } from "react-toastify";
 
 const SUPPORTED_IMAGE_FORMATS = [
