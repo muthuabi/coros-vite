@@ -184,7 +184,7 @@ export default function Home() {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              <MenuItem component={Link} to={"/profile"} onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem component={Link} to={"/user/profile"} onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
               <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
