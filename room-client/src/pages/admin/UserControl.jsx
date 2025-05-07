@@ -8,7 +8,8 @@ import {
 } from '@mui/material';
 import { Edit, Delete, Visibility, Add, Check, Close, Person, AdminPanelSettings } from '@mui/icons-material';
 import axos from '../../axos';
-
+import { Search } from '@mui/icons-material';
+import InputAdornment from '@mui/material/InputAdornment';
 const UserControl = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ const UserControl = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [validationErrors, setValidationErrors] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 const [pagination, setPagination] = useState({
   page: 1,
   limit: 10,
@@ -30,6 +32,20 @@ const [pagination, setPagination] = useState({
   });
 
   const roles = ['user', 'admin'];
+  const filteredUsers = users.filter(user => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      user.firstname?.toLowerCase().includes(searchLower) ||
+      user.lastname?.toLowerCase().includes(searchLower) ||
+      user.username?.toLowerCase().includes(searchLower) ||
+      user.email?.toLowerCase().includes(searchLower) ||
+      user.phone?.toLowerCase().includes(searchLower) ||
+      user.role?.toLowerCase().includes(searchLower) ||
+      (user.isBanned ? 'banned' : 'active').includes(searchLower)
+    );
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -209,17 +225,34 @@ const handleSubmit = async () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Users Management</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={() => handleOpenDialog()}
-        >
-          Add User
-        </Button>
-      </Box>
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+  <Typography variant="h4">Users Management</Typography>
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+    <TextField
+      variant="outlined"
+      size="small"
+      placeholder="Search users..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <Search />
+          </InputAdornment>
+        ),
+      }}
+      sx={{ width: 300 }}
+    />
+    <Button
+      variant="contained"
+      color="primary"
+      startIcon={<Add />}
+      onClick={() => handleOpenDialog()}
+    >
+      Add User
+    </Button>
+  </Box>
+</Box>
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -242,7 +275,7 @@ const handleSubmit = async () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user._id} hover>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
